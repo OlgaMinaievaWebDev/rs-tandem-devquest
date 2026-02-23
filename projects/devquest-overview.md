@@ -224,7 +224,7 @@ Advantages:
 
 Each task widget returns a unified result structure:
 
-```ts
+
 {
   outcome: "correct" | "wrong" | "timeout",
   userAnswer: string
@@ -234,54 +234,70 @@ This enables consistent evaluation logic.
 
 ---
 
-## 7. Backend Architecture
+
+# 7. Backend Architecture
 
 ## 7.1 Supabase Services
 
 Supabase provides:
 
-Authentication (email/password)
-PostgreSQL database
-Row Level Security
-Realtime subscriptions
-Edge Functions
+- Authentication (email/password)
+- PostgreSQL database
+- Row Level Security (RLS)
+- Realtime subscriptions
+- Edge Functions
 
+---
 
-## 7.2 Data Model profiles
+## 7.2 Data Model
 
-id
-name
-avatar
-skill
-player_state
-user_id
-day
-stress
-authority
-messages
-id
-user_id
-text
-created_at
+### profiles
+
+- id
+- name
+- avatar
+- skill
+
+### player_state
+
+- user_id
+- day
+- stress
+- authority
+
+### messages
+
+- id
+- user_id
+- text
+- created_at
 
 RLS ensures user data isolation.
 
-8. Realtime Communication
+---
+
+# 8. Realtime Communication
 
 Realtime chat uses:
-Supabase messages table
-Realtime subscription
-Client-side listener
 
-Constraints:
+- Supabase `messages` table
+- Realtime subscription
+- Client-side listener
 
-Message limit per day OR cooldown
-RLS-based access control
+### Constraints
 
-9. AI Integration Architecture
-9.1 Security Model
+- Message limit per day OR cooldown
+- RLS-based access control
+
+---
+
+# 9. AI Integration Architecture
+
+## 9.1 Security Model
 
 Gemini API key is never exposed to the client.
+
+### Architecture Flow
 
 Architecture:
 
@@ -297,8 +313,8 @@ Validates input
 Returns structured JSON
 Client receives only processed data.
 
-10. Deployment Architecture
-10.1 Repository Structure
+## 10. Deployment Architecture
+# 10.1 Repository Structure
 
 root/
   README.md
@@ -358,7 +374,7 @@ app/src/
     main.css              # base styles + pixel UI
 
 
-10.2 CI/CD Flow
+## 10.2 CI/CD Flow
 
 On push to main:
 Install dependencies
@@ -367,7 +383,7 @@ Typecheck
 Build
 Deploy app/dist to GitHub Pages
 
-11. Security Considerations
+## 11. Security Considerations
 
 API keys stored server-side only
 RLS enforced on all tables
@@ -375,7 +391,7 @@ No business logic in client routing
 Controlled state mutations
 No direct DB access from UI
 
-12. Non-Functional Requirements
+## 12. Non-Functional Requirements
 
 Static hosting compatibility
 Deterministic state updates
@@ -383,7 +399,7 @@ Modular scalability
 Secure API management
 Minimal coupling between modules
 
-13. Architectural Principles
+## 13. Architectural Principles
 
 Separation of Concerns
 Secure-by-Design
@@ -391,7 +407,7 @@ Explicit Data Flow
 Event-Driven Modularity
 Infrastructure Isolation
 
-14. Conclusion
+## 14. Conclusion
 
 DevQuest is designed as a secure, modular, event-driven web system with:
 Clean layer separation
