@@ -115,7 +115,7 @@ Users can register, log in, and their progress persists.
   outcome: "correct" | "wrong" | "timeout",
   userAnswer: string
 }
-
+```
 Deliverable:
 User can complete a day, stats update, next day unlocks.
 
@@ -128,7 +128,7 @@ Store GEMINI_KEY in Supabase Secrets
 Validate input
 Return structured JSON
 
-Frontend
+# Frontend
 Implement aiService.ts
 Call Edge Function from taskManager.ts
 Handle AI response
@@ -136,7 +136,7 @@ Handle AI response
 Deliverable:
 Tasks generated dynamically via Gemini, key remains secure.
 
-Phase 5 — Senior Developer Chat
+## Phase 5 — Senior Developer Chat
 Goal: In-game help system.
 Tasks
 Create messages table
@@ -151,7 +151,7 @@ Enable Supabase Realtime subscription
 Deliverable:
 User can request help from Senior Dev (AI-simulated), history saved.
 
-Phase 6 — Polish & Stability
+## Phase 6 — Polish & Stability
 
 Goal: Production-ready MVP.
 Tasks
@@ -167,7 +167,7 @@ Deliverable:
 Stable and polished playable MVP.
 
 
-Final Outcome
+## Final Outcome
 
 DevQuest MVP includes:
 
