@@ -316,6 +316,7 @@ Client receives only processed data.
 ## 10. Deployment Architecture
 # 10.1 Repository Structure
 
+```text
 root/
   README.md
   notes/
@@ -348,7 +349,7 @@ app/src/
 
   game/
     gameManager.ts        # startGame/endGame, orchestration
-    dayManager.ts         # day flow: 2 of 3 tasks -> DAY_COMPLETED
+    dayManager.ts         # day flow: 2 of 3 tasks -> DAY_COMPLETED``text
     taskManager.ts        # pick/generate/evaluate task
     statsManager.ts       # apply stress/authority
     timer.ts              # per-task timer (start/stop)
