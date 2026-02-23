@@ -232,7 +232,9 @@ Each task widget returns a unified result structure:
 
 This enables consistent evaluation logic.
 
-7. Backend Architecture
+---
+
+## 7. Backend Architecture
 
 ## 7.1 Supabase Services
 
