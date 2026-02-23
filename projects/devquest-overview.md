@@ -374,6 +374,7 @@ app/src/
   styles/
     main.css              # base styles + pixel UI
 
+```text
 
 ## 10.2 CI/CD Flow
 
