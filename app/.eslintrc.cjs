@@ -24,4 +24,13 @@ module.exports = {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
   ignorePatterns: ['dist', 'node_modules'],
+
+  overrides: [
+    {
+      files: ['vite.config.ts'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
+  ],
 };
