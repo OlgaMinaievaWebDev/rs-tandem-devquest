@@ -8,3 +8,11 @@ if (root) {
     <p>Project initialized successfully 🚀</p>
   `;
 }
+// test
+// test
+// test
+// test
+// test
+// test
+// test
+// test
