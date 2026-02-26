@@ -2,27 +2,32 @@
 
 **Live Demo:** [https://olgaminaievawebdev.github.io/rs-tandem-devquest/](https://olgaminaievawebdev.github.io/rs-tandem-devquest/)
 
-**DevQuest** — это геймифицированное веб-приложение для подготовки начинающих разработчиков к техническим интервью. Игрок берет на себя роль Junior-разработчика, проходящего 7-дневный испытательный срок под руководством строгого AI-тимлида.
+**DevQuest** is a gamified web application designed to help beginner developers prepare for technical interviews. The player takes on the role of a Junior developer going through a 7-day probation period under the supervision of a strict AI team lead.
 
-## 🚀 Суть продукта(...в разработке)
+## 🚀 Product Essence (...in development)
 
-**Ключевые особенности:**(...в разработке)
-* **AI-Тимлид (Gemini API):** Генерирует задачи с "багами", проверяет код игрока и дает едкий, но полезный фидбек.
-* **Механика RPG:** У игрока есть параметры **Stress** (уровень стресса) и **Authority** (авторитет). Ошибки повышают стресс, а чистый код — авторитет.
-* **7-дневный марафон:** Цель — дожить до конца недели и не быть "уволенным" из-за критического уровня стресса.
+**Key Features:** (...in development)
 
-## 🛠 Технический стек(...в разработке)
-* **Frontend:** TypeScript, React, Vite.
-* **AI:** Google Gemini API (Client-side integration).
-* **Styling:** 
-* **Data:** LocalStorage для сохранения прогресса.
+* **AI Team Lead (Gemini API):** Generates tasks with "bugs", checks the player's code, and provides sharp but helpful feedback.
+* **RPG Mechanics:** The player has two main stats - **Stress** (stress level) and **Authority** (authority level). Mistakes increase stress, while clean code increases authority.
+* **7-Day Marathon:** The goal is to survive until the end of the week without being "fired" due to a critical stress level.
 
-## 👥 Команда (RS Tandem)
-* **O. Minaieva** ([OlgaMinaievaWebDev](https://github.com/OlgaMinaievaWebDev)) — Team Lead
-* **A. Aziz** ([AzizShik](https://github.com/AzizShik)) — Developer
-* **I.Saluk** ([isaluk](https://github.com/isaluk)) — Deveoper
+## 🛠 Tech Stack (...in development)
 
-## 🔧 Установка и запуск (...в разработке)
-1. Клонировать репозиторий.
-2. Установить зависимости: `npm install`.
-3. Запустить проект: `npm run dev`.
+* **Frontend:** TypeScript, React, Vite
+* **AI:** Google Gemini API (client-side integration)
+* **Styling:**
+* **Data:** LocalStorage for saving progress
+
+## 👥 Team (RS Tandem)
+
+* **O. Minaieva** [](https://github.com/OlgaMinaievaWebDev) — Team Lead
+* **A. Aziz** [](https://github.com/AzizShik) — Developer
+* **I. Saluk** [](https://github.com/isaluk) — Developer
+
+## 🔧 Installation and Launch (...in development)
+
+1. Clone the repository.
+2. Install dependencies: `npm install`.
+3. Start the project: `npm run dev`.
+
