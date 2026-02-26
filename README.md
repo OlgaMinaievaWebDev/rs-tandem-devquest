@@ -1,6 +1,7 @@
 # DevQuest (RS School Final Project)
 
-**Link** 
+**Live Demo:** [https://olgaminaievawebdev.github.io/rs-tandem-devquest/](https://olgaminaievawebdev.github.io/rs-tandem-devquest/)
+
 **DevQuest** — это геймифицированное веб-приложение для подготовки начинающих разработчиков к техническим интервью. Игрок берет на себя роль Junior-разработчика, проходящего 7-дневный испытательный срок под руководством строгого AI-тимлида.
 
 ## 🚀 Суть продукта(...в разработке)
