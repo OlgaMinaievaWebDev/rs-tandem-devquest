@@ -1,0 +1,26 @@
+{
+  "name": "rs-tandem-devquest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "**DevQuest** — это геймифицированное веб-приложение для подготовки начинающих разработчиков к техническим интервью. Игрок берет на себя роль Junior-разработчика, проходящего 7-дневный испытательный срок под руководством строгого AI-тимлида.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "lint-staged": {
+    "app/**/*.{ts,tsx,js,jsx}": [
+      "npm --prefix app run lint:staged"
+    ],
+    "app/**/*.{ts,tsx,js,jsx,css,html,md,json}": [
+      "npm --prefix app run format:staged"
+    ]
+  }
+}
