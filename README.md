@@ -21,9 +21,9 @@
 
 ## 👥 Team (RS Tandem)
 
-* **O. Minaieva** [](https://github.com/OlgaMinaievaWebDev) — Team Lead
-* **A. Aziz** [](https://github.com/AzizShik) — Developer
-* **I. Saluk** [](https://github.com/isaluk) — Developer
+* **O. Minaieva** ([OlgaMinaievaWebDev](https://github.com/OlgaMinaievaWebDev)) — Team Lead
+* **A. Aziz** ([AzizShik](https://github.com/AzizShik)) — Developer
+* **I.Saluk** ([isaluk](https://github.com/isaluk)) — Deveoper
 
 ## 🔧 Installation and Launch (...in development)
 
