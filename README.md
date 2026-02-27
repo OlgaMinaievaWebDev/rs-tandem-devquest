@@ -14,7 +14,7 @@
 
 ## 🛠 Tech Stack (...in development)
 
-* **Frontend:** TypeScript, React, Vite
+* **Frontend:** TypeScript, Vite
 * **AI:** Google Gemini API (client-side integration)
 * **Styling:**
 * **Data:** LocalStorage for saving progress
