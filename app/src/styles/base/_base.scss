@@ -1,0 +1,67 @@
+@use '../abstracts/variables' as *;
+
+/* ===== Base Reset ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  font-size: $text-md;
+  background: $color-bg;
+  color: $color-text;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Headings (Game Style) ===== */
+
+h1 {
+  font-size: $text-4xl;
+  font-weight: $weight-bold;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: $text-3xl;
+  font-weight: $weight-bold;
+  letter-spacing: $tracking-wide;
+}
+
+h3 {
+  font-size: $text-2xl;
+  font-weight: $weight-medium;
+}
+
+h4 {
+  font-size: $text-xl;
+  font-weight: $weight-medium;
+}
+
+/* ===== Paragraphs ===== */
+
+p {
+  font-size: $text-md;
+  color: $color-text-muted;
+}
+
+/* ===== UI Labels (Game vibe) ===== */
+
+.label {
+  font-size: $text-xs;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+

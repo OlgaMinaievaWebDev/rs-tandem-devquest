@@ -1,0 +1,70 @@
+/* ===== Core neutrals (dark UI) ===== */
+$black: #0b0f0d;         // main background (near-black, not pure)
+$grey-900: #121816;      // surface / cards
+$grey-800: #1b2421;      // elevated surface / hover
+$grey-700: #2a3230;      // borders / separators
+
+$grey-400: #8b9491;      // secondary text (passes on $black)
+$grey-200: #c7cfcc;      // muted text (passes on $black)
+$light-grey: #d9e0dd;    // light UI elements on dark (icons, subtle fills)
+$white: #ffffff;         // pure white
+
+/* ===== Accents colors ===== */
+$green: #22c55e;         // bright accent (great on dark as text/outline)
+$green-solid: #15803d;   // use for solid buttons with white text (AA)
+
+$red: #dc2626;           // solid error/destructive with white text (AA)
+$orange: #c2410c;        // solid warning/cta with white text (AA)
+$yellow: #eab308;        // solid highlight with BLACK text (AA)
+
+/* ===== Semantic tokens (recommended to use in styles) ===== */
+$color-bg: $black;
+$color-surface: $grey-900;
+$color-surface-2: $grey-800;
+$color-border: $grey-700;
+
+$color-text: #f5f7f6;    // softer than pure white, very readable
+$color-text-muted: $grey-200;
+$color-text-secondary: $grey-400;
+
+$color-success: $green;
+$color-success-solid: $green-solid;
+
+$color-danger: $red;
+$color-warning: $orange;
+$color-highlight: $yellow;
+
+/* ===== On-color text (important for contrast) ===== */
+$on-dark: $color-text;   // text on dark surfaces
+$on-success: $white;     // for $green-solid
+$on-danger: $white;      // for $red
+$on-warning: $white;     // for $orange
+$on-highlight: $black;   // for $yellow
+
+
+
+
+
+/* ===== Typography ===== */
+
+$font-family-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-family-display: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+/* Font sizes (Game-like scale) */
+$text-xs: 0.75rem;   // 12px
+$text-sm: 0.875rem;  // 14px
+$text-md: 1rem;      // 16px
+$text-lg: 1.25rem;   // 20px
+$text-xl: 1.5rem;    // 24px
+$text-2xl: 2rem;     // 32px
+$text-3xl: 2.5rem;   // 40px
+$text-4xl: 3rem;     // 48px
+
+/* Font weights */
+$weight-regular: 400;
+$weight-medium: 500;
+$weight-bold: 700;
+
+/* Letter spacing */
+$tracking-wide: 0.08em;
+$tracking-wider: 0.12em;
