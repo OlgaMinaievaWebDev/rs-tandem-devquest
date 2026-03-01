@@ -2,43 +2,41 @@ import type { Route } from '../core/state';
 
 type OnRouteChange = (route: Route) => void;
 
-export class Router {
+export default class Router {
   private onRouteChange: OnRouteChange;
 
   constructor(onRouteChange: OnRouteChange) {
     this.onRouteChange = onRouteChange;
   }
 
-  init() {
-    window.addEventListener('hashchange', () => {
-      this.handleHashChange();
-    });
-
+  init(): void {
+    window.addEventListener('hashchange', this.handleHashChange);
     this.handleHashChange();
   }
 
-  navigate(route: Route) {
-    const hash = this.routeToHash(route);
+  navigate(route: Route): void {
+    const hash = Router.routeToHash(route);
+    const next = `#${hash}`;
+
+    if (window.location.hash === next) {
+      this.handleHashChange();
+      return;
+    }
+
     window.location.hash = hash;
   }
 
-  private handleHashChange() {
-    let path = window.location.hash.slice(1);
-
-    if (!path) {
-      path = '/';
-    }
+  private handleHashChange = (): void => {
+    const path = window.location.hash.slice(1) || '/';
 
     const parts = path.split('/').filter((part) => part !== '');
-    const parsedRoute = this.parsePartsToRoute(parts);
+    const parsedRoute = Router.parsePartsToRoute(parts);
 
     this.onRouteChange(parsedRoute);
-  }
+  };
 
-  private parsePartsToRoute(parts: string[]): Route {
-    if (parts.length === 0) {
-      return { name: 'start' };
-    }
+  private static parsePartsToRoute(parts: string[]): Route {
+    if (parts.length === 0) return { name: 'start' };
 
     const [first, ...rest] = parts;
 
@@ -49,23 +47,21 @@ export class Router {
         return { name: 'dashboard' };
       case 'done':
         return { name: 'done' };
-      case 'day':
+      case 'day': {
         if (rest.length === 1) {
-          const dayStr = rest[0];
-          const day = parseInt(dayStr, 10);
-          if (!isNaN(day) && day >= 1 && day <= 7) {
+          const day = Number(rest[0]);
+          if (Number.isInteger(day) && day >= 1 && day <= 7) {
             return { name: 'day', day };
           }
         }
-        break;
+        return { name: 'start' };
+      }
       default:
-        break;
+        return { name: 'start' };
     }
-
-    return { name: 'start' };
   }
 
-  private routeToHash(route: Route): string {
+  private static routeToHash(route: Route): string {
     switch (route.name) {
       case 'start':
         return '/';
@@ -77,6 +73,8 @@ export class Router {
         return '/done';
       case 'day':
         return `/day/${route.day}`;
+      default:
+        throw new Error('Unknown route');
     }
   }
 }
