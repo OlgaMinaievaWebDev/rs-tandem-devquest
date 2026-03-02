@@ -1,17 +1,17 @@
 import Router from './router/router';
-import './styles/main.scss';
 import type { Route } from './core/state';
+import './styles/main.scss';
+import { renderStartScreen } from './ui/screens/startScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
+if (!root) throw new Error('#app not found');
 
 const render = (route: Route) => {
-  if (!root) return;
-
-  root.innerHTML = `
-    <h1>DevQuest</h1>
-    <p>Current route: <b>${route.name}</b></p>
-    ${route.name === 'day' ? `<p>Day: ${route.day}</p>` : ''}
-  `;
+  root.replaceChildren(
+    renderStartScreen({
+      onStart: () => console.log('Start clicked 🎮'),
+    }),
+  );
 };
 
 const handleRouter = (route: Route) => {
