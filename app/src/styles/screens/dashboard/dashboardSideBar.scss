@@ -1,0 +1,144 @@
+@use '../../abstracts/variables' as *;
+
+.sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  // Profile block
+  &__profile {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: center;
+    gap: $space-3;
+
+    padding: $space-3;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: $color-surface-2;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-sm;
+    display: grid;
+    place-items: center;
+
+    border: 1px solid $color-border;
+    background: $color-surface;
+  }
+
+  &__username {
+    font-weight: $weight-bold;
+    color: $color-text;
+  }
+
+  // Status bars container
+  &__bars {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+
+  // Action menu
+  .action-menu {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+
+    &__item {
+      appearance: none;
+      font: inherit;
+
+      width: 100%;
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: $space-3;
+
+      padding: $space-3;
+      border-radius: $radius-md;
+      border: 1px solid $color-border;
+
+      background: $color-surface-2;
+      color: $color-text;
+      cursor: pointer;
+      text-align: left;
+
+      transition:
+        border-color 120ms ease,
+        box-shadow 120ms ease,
+        transform 120ms ease;
+
+      &:hover {
+        border-color: $color-success;
+        box-shadow: 0 0 10px rgba($color-success, 0.25);
+        transform: translateY(-1px);
+      }
+
+      &:focus-visible {
+        outline: 2px solid $color-success;
+        outline-offset: 2px;
+      }
+    }
+
+    &__icon {
+      font-size: $text-md;
+    }
+
+    &__label {
+      font-size: $text-sm;
+      color: $color-text;
+    }
+
+    &__badge {
+      font-size: $text-xs;
+      padding: 2px 8px;
+      border-radius: $radius-pill;
+      border: 1px solid $color-border;
+
+      color: $color-text-muted;
+      background: $color-surface;
+    }
+  }
+
+  // Bottom controls
+  &__controls {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+
+  &__button {
+    appearance: none;
+    font: inherit;
+
+    border: 1px solid $color-border;
+    background: $color-surface-2;
+    color: $color-text;
+
+    padding: $space-3;
+    border-radius: $radius-md;
+
+    cursor: pointer;
+
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      transform 120ms ease;
+
+    &:hover {
+      border-color: $color-success;
+      box-shadow: 0 0 10px rgba($color-success, 0.25);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-success;
+      outline-offset: 2px;
+    }
+  }
+}

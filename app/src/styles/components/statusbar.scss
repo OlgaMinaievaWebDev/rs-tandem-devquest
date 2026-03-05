@@ -1,0 +1,56 @@
+@use '../abstracts/variables' as *;
+
+.status-bar {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: $space-3;
+
+  &__label {
+    font-size: $text-sm;
+    color: $color-text-secondary;
+  }
+
+  &__segments {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__segment {
+    height: 10px;
+    flex: 1;
+    border-radius: $radius-pill;
+    background: $color-border;
+    box-shadow: 0 0 0 1px $color-border;
+    transition: background 120ms ease, box-shadow 120ms ease;
+
+    &.is-filled {
+      background: $color-text-muted;
+      box-shadow: 0 0 0 1px $color-text-muted;
+    }
+  }
+
+  &--authority {
+    .status-bar__segment.is-filled {
+      background: $color-highlight;
+      box-shadow: 0 0 0 1px $color-highlight;
+    }
+  }
+
+  &--stress {
+    .status-bar__segment.is-filled.is-low {
+      background: $color-success;
+      box-shadow: 0 0 0 1px $color-success;
+    }
+
+    .status-bar__segment.is-filled.is-mid {
+      background: $color-warning;
+      box-shadow: 0 0 0 1px $color-warning;
+    }
+
+    .status-bar__segment.is-filled.is-high {
+      background: $color-danger;
+      box-shadow: 0 0 0 1px $color-danger;
+    }
+  }
+}
