@@ -1,34 +1,34 @@
 import Router from './router/router';
 import type { Route } from './core/state';
-import './styles/main.scss';
 import { renderStartScreen } from './ui/screens/startScreen';
+import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
+import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
 
+let router: Router; // ✅ declare first so render can use it
+
+const renderStart = () =>
+  renderStartScreen({
+    onStart: () => router.navigate({ name: 'dashboard' }),
+  });
 const render = (route: Route) => {
-  root.replaceChildren(
-    renderStartScreen({
-      onStart: () => console.log('Start clicked 🎮'),
-    }),
-  );
+  switch (route.name) {
+    case 'start':
+      root.replaceChildren(renderStart());
+      break;
+
+    case 'dashboard':
+      root.replaceChildren(renderDashboardScreen());
+      break;
+
+    default:
+      root.replaceChildren(renderStart());
+  }
 };
 
-const handleRouter = (route: Route) => {
-  render(route);
-};
+const handleRouter = (route: Route) => render(route);
 
-const router = new Router(handleRouter);
-
+router = new Router(handleRouter); // ✅ assign after render exists
 router.init();
-
-router.navigate({ name: 'start' });
-
-// test
-// test
-// test
-// test
-// test
-// test
-// test
-// test
