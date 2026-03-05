@@ -3,49 +3,30 @@
 .dashboard {
   min-height: 100vh;
   display: grid;
-
-  background: radial-gradient(
-      circle at top,
-      rgba(255, 255, 255, 0.06),
-      transparent 55%
-    ),
-    $color-bg;
-
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 55%), $color-bg;
   grid-template-columns: 1fr 220px;
   grid-template-rows: 64px 1fr;
-
   grid-template-areas:
-    "header sidebar"
-    "main sidebar";
-
+    'header sidebar'
+    'main sidebar';
   color: $color-text;
 
   &__header {
     grid-area: header;
-
     display: flex;
     align-items: center;
-    justify-content: space-between;
-
     padding: $space-4 $space-5;
-
-    background: $color-surface;
-    border-bottom: 1px solid $color-border;
   }
 
   &__main {
     grid-area: main;
-
     padding: $space-5;
-
     background: $color-bg;
   }
 
   &__sidebar {
     grid-area: sidebar;
-
     padding: $space-4;
-
     background: $color-surface;
     border-left: 1px solid $color-border;
   }
