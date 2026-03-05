@@ -1,13 +1,12 @@
 import { createDashboardLayout } from '../../layouts/dashboardLayout';
+import { createDashboardHeader } from './dashboardHeader';
 import '../../../styles/screens/dashboard/dashboardScreen.scss';
 
 export default function renderDashboardScreen(): HTMLElement {
   const layout = createDashboardLayout();
 
-  // temp header
-  const h = document.createElement('div');
-  h.textContent = 'DevQuest — Dashboard';
-  layout.header.append(h);
+  // header
+  layout.header.replaceChildren(createDashboardHeader({ day: 1 }));
 
   // temp sidebar
   const s = document.createElement('nav');

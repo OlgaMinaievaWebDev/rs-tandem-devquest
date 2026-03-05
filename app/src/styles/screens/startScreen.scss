@@ -31,17 +31,17 @@
 }
 
 .terminal-description {
-  position: relative; 
-  overflow: hidden;   
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgba($color-success, 0.35);
   border-radius: $radius-md;
   background: rgba($color-success, 0.05);
   padding: $space-4;
   margin-bottom: $space-5;
-  animation: flicker 0.15s infinite; 
+  animation: flicker 0.15s infinite;
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
@@ -54,7 +54,7 @@
   }
 
   &__p {
-    position: relative; 
+    position: relative;
     z-index: 1;
     margin: 0 0 $space-2 0;
     color: $color-success;
