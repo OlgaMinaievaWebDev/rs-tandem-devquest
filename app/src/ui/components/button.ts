@@ -31,7 +31,7 @@ export function createButton({
   // 3. Content Construction (Safe for icons)
   if (icon) {
     const iconSpan = document.createElement('span');
-    iconSpan.className = 'bt__icon';
+    iconSpan.className = 'btn__icon';
     iconSpan.textContent = icon;
     button.appendChild(iconSpan);
   }
