@@ -1,0 +1,94 @@
+@use '../../abstracts/variables' as *;
+.day-main__title {
+  margin: 0;
+  font-size: $text-lg;
+  font-weight: $weight-bold;
+  color: $color-text;
+}
+
+.day-main__games {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-3;
+
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.day-main__game {
+  appearance: none;
+  font: inherit;
+
+  text-align: left;
+  cursor: pointer;
+
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface-2;
+  color: $color-text;
+
+  padding: $space-4;
+
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+
+  &:hover {
+    border-color: $color-success;
+    box-shadow: 0 0 10px rgba($color-success, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-success;
+    outline-offset: 2px;
+  }
+}
+
+.day-main__game-title {
+  font-weight: $weight-bold;
+  font-size: $text-md;
+  color: $color-text;
+}
+
+.day-main__game-subtitle {
+  margin-top: $space-2;
+  font-size: $text-sm;
+  color: $color-text-muted;
+}
+
+.day-main__footer {
+  margin-top: $space-4;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.day-main__btn {
+  appearance: none;
+  font: inherit;
+
+  border: 1px solid $color-border;
+  background: $color-surface-2;
+  color: $color-text;
+
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+
+  cursor: pointer;
+
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+
+  &:hover {
+    border-color: $color-success;
+    box-shadow: 0 0 10px rgba($color-success, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-success;
+    outline-offset: 2px;
+  }
+}

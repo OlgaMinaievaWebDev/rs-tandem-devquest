@@ -1,0 +1,11 @@
+@use '../../abstracts/variables' as *;
+
+.day-screen {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: $space-5;
+}

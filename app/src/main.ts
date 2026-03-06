@@ -2,6 +2,7 @@ import Router from './router/router';
 import type { Route } from './core/state';
 import { renderStartScreen } from './ui/screens/startScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
+import renderDayScreen from './ui/screens/day/dayScreen';
 import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -20,7 +21,20 @@ const render = (route: Route) => {
       break;
 
     case 'dashboard':
-      root.replaceChildren(renderDashboardScreen());
+      root.replaceChildren(
+        renderDashboardScreen({
+          onSelectDay: (day: number) => router.navigate({ name: 'day', day }),
+        }),
+      );
+      break;
+
+    case 'day':
+      root.replaceChildren(
+        renderDayScreen({
+          day: route.day,
+          onBackToDashboard: () => router.navigate({ name: 'dashboard' }),
+        }),
+      );
       break;
 
     default:
