@@ -24,7 +24,7 @@ const DEFAULT_GAMES: GameButtonConfig[] = [
 ];
 
 export function createDayMain({
-  day,
+  day: _day,
   briefing = 'Your team lead assigned you a task. Pick an approach and complete it.',
   aiMessage = 'AI Lead: Welcome to today’s task. Do it by the book.',
   onStartGame,
