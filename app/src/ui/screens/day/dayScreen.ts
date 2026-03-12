@@ -17,17 +17,17 @@ export default function renderDayScreen({ day, onBackToDashboard }: DayScreenPro
 
   layout.sidebar.replaceChildren(
     createSidebar({
-      onHelp: () => console.log('help'),
-      onCoffeeBreak: () => console.log('coffee'),
-      onLunchBreak: () => console.log('lunch'),
-      onSmokeBreak: () => console.log('smoke'),
+      onHelp: () => {},
+      onCoffeeBreak: () => {},
+      onLunchBreak: () => {},
+      onSmokeBreak: () => {},
     }),
   );
 
   layout.main.replaceChildren(
     createDayMain({
       day,
-      onStartGame: (gameId) => console.log('start', gameId),
+      onStartGame: (_gameId) => {},
       onBackToDashboard,
     }),
   );
