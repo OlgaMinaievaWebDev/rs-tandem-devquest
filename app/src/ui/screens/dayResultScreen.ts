@@ -9,14 +9,13 @@ export type DayResultScreenProps = {
   onNextDay: () => void;
 };
 
-export function renderDayResultScreen({
+export function createDayResultScreen({
   day,
   stress,
-  stressChange = 0,
   xpGained,
   onNextDay,
 }: DayResultScreenProps): HTMLElement {
-  const screen = document.createElement('section');
+  const screen = document.createElement('div');
   screen.className = 'result-screen';
 
   const card = document.createElement('div');
@@ -36,11 +35,7 @@ export function renderDayResultScreen({
   stressValue.className = 'result-screen__bold';
   stressValue.textContent = `${stress}%`;
 
-  const stressValueChange = document.createElement('span');
-  stressValueChange.className = `result-screen__change ${stressChange >= 0 ? 'is-negative' : 'is-positive'}`;
-  stressValueChange.textContent = ` (${stressChange >= 0 ? '+' : ''}${stressChange}%)`;
-
-  stressLine.append('Stress: ', stressValue, stressValueChange);
+  stressLine.append('Stress: ', stressValue);
 
   const xpLine = document.createElement('p');
   xpLine.className = 'result-screen__stat';

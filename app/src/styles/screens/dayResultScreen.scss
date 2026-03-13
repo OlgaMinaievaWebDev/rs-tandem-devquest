@@ -9,20 +9,8 @@
   display: grid;
   place-items: center;
   padding: $space-6;
-  background: $color-bg;
 
-  &__wrapper {
-    display: grid;
-    place-items: center;
-    padding: $space-4;
-    width: 75%;
-    height: 100%;
-    background: $color-surface;
-    border-radius: $radius-lg;
-    box-shadow:
-      0 0 20px 0 rgba(0, 0, 0, 0.4),
-      0 0 10px 0 rgba(94, 236, 112, 0.2);
-  }
+  background: rgba($color-bg, 0.5);
 
   &__card {
     width: min(540px, 100%);
