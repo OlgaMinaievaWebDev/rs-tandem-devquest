@@ -22,9 +22,6 @@ export function renderDayResultScreen({
   const card = document.createElement('div');
   card.className = 'result-screen__card';
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'result-screen__wrapper';
-
   const title = document.createElement('h2');
   title.className = 'result-screen__title';
   title.textContent = `Day ${day} Complete`;
@@ -34,15 +31,25 @@ export function renderDayResultScreen({
 
   const stressLine = document.createElement('p');
   stressLine.className = 'result-screen__stat';
-  stressLine.innerHTML =
-    `Stress: <span class="result-screen__bold">${stress}%</span>` +
-    (stressChange !== 0
-      ? ` <span class="result-screen__change ${stressChange >= 0 ? 'is-negative' : 'is-positive'}">(${stressChange >= 0 ? '+' : ''}${stressChange}%)</span>`
-      : '');
+
+  const stressValue = document.createElement('span');
+  stressValue.className = 'result-screen__bold';
+  stressValue.textContent = `${stress}%`;
+
+  const stressValueChange = document.createElement('span');
+  stressValueChange.className = `result-screen__change ${stressChange >= 0 ? 'is-negative' : 'is-positive'}`;
+  stressValueChange.textContent = ` (${stressChange >= 0 ? '+' : ''}${stressChange}%)`;
+
+  stressLine.append('Stress: ', stressValue, stressValueChange);
 
   const xpLine = document.createElement('p');
   xpLine.className = 'result-screen__stat';
-  xpLine.innerHTML = `XP Gained: <span class="result-screen__bold">+${xpGained}</span>`;
+
+  const xpValue = document.createElement('span');
+  xpValue.className = 'result-screen__bold';
+  xpValue.textContent = `${xpGained >= 0 ? '+' : ''}${xpGained}`;
+
+  xpLine.append('XP Gained: ', xpValue);
 
   body.append(stressLine, xpLine);
 
@@ -56,8 +63,7 @@ export function renderDayResultScreen({
   });
 
   card.append(title, body, nextBtn);
-  wrapper.append(card);
-  screen.appendChild(wrapper);
+  screen.appendChild(card);
 
   return screen;
 }
