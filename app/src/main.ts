@@ -49,13 +49,13 @@ const handleRouter = (route: Route) => render(route);
 router = new Router(handleRouter); // ✅ assign after render exists
 router.init();
 
-root.append(
-  createDayResultScreen({
-    day: 1,
-    stress: 10,
-    xpGained: 100,
-    onNextDay: () => {
-      console.log('show next day');
-    },
-  }),
-);
+// root.append(
+//   createDayResultScreen({
+//     day: 1,
+//     stress: 10,
+//     xpGained: 100,
+//     onNextDay: () => {
+//       console.log('show next day');
+//     },
+//   }),
+// );

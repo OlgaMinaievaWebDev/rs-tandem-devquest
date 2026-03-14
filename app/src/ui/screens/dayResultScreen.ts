@@ -4,7 +4,6 @@ import '../../styles/screens/dayResultScreen.scss';
 export type DayResultScreenProps = {
   day: number;
   stress: number;
-  stressChange?: number;
   xpGained: number;
   onNextDay: () => void;
 };
