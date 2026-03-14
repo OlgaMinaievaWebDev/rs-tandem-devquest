@@ -3,8 +3,8 @@ import type { Route } from './core/state';
 import { renderStartScreen } from './ui/screens/startScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
 import './styles/main.scss';
-import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import renderDayScreen from './ui/screens/day/dayScreen';
+// import { createDayResultScreen } from './ui/screens/dayResultScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
