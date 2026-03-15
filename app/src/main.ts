@@ -2,8 +2,9 @@ import Router from './router/router';
 import type { Route } from './core/state';
 import { renderStartScreen } from './ui/screens/startScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
-import renderDayScreen from './ui/screens/day/dayScreen';
 import './styles/main.scss';
+import renderDayScreen from './ui/screens/day/dayScreen';
+// import { createDayResultScreen } from './ui/screens/dayResultScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -14,6 +15,7 @@ const renderStart = () =>
   renderStartScreen({
     onStart: () => router.navigate({ name: 'dashboard' }),
   });
+
 const render = (route: Route) => {
   switch (route.name) {
     case 'start':
@@ -46,3 +48,14 @@ const handleRouter = (route: Route) => render(route);
 
 router = new Router(handleRouter); // ✅ assign after render exists
 router.init();
+
+// root.append(
+//   createDayResultScreen({
+//     day: 1,
+//     stress: 10,
+//     xpGained: 100,
+//     onNextDay: () => {
+//       console.log('show next day');
+//     },
+//   }),
+// );

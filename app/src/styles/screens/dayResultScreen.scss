@@ -1,0 +1,73 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/animation' as *;
+
+.result-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: grid;
+  place-items: center;
+  padding: $space-6;
+
+  background: rgba($color-bg, 0.5);
+
+  &__card {
+    width: min(540px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+
+    background: $color-surface;
+    border: 2px solid $color-success;
+    border-radius: $radius-lg;
+    box-shadow:
+      0 0 30px rgba($color-success, 0.35),
+      inset 0 0 20px rgba($color-success, 0.08);
+
+    padding: $space-6 $space-5;
+    text-align: center;
+  }
+
+  &__title {
+    margin: 0 0 $space-5;
+    font-size: $text-2xl;
+    font-weight: $weight-bold;
+    color: $color-success;
+    letter-spacing: $tracking-wide;
+    text-shadow: 0 0 12px rgba($color-success, 0.6);
+  }
+
+  &__body {
+    margin-bottom: $space-6;
+    font-size: $text-md;
+    line-height: 1.6;
+    color: $color-text-muted;
+  }
+
+  &__stat {
+    margin: $space-4 0;
+    font-size: $text-lg;
+  }
+
+  &__bold {
+    color: $color-text;
+    font-weight: $weight-bold;
+  }
+
+  &__change {
+    font-size: 0.9em;
+
+    &.is-positive {
+      color: $color-success;
+    }
+
+    &.is-negative {
+      color: $color-danger;
+    }
+  }
+
+  &__next-btn {
+    font-size: $text-lg;
+    text-transform: uppercase;
+  }
+}
