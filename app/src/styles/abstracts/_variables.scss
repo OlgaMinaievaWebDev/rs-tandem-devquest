@@ -53,6 +53,8 @@ $font-family-display:
   system-ui,
   -apple-system,
   sans-serif;
+$font-family-accent: 'SonicHUD', 'Courier New', Courier, monospace;
+$font-family-decorative: 'UndertaleBattle', $font-family-base;
 
 /* Font sizes (Game-like scale) */
 $text-xs: 0.75rem; // 12px
