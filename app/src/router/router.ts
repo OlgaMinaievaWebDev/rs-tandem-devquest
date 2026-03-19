@@ -42,11 +42,14 @@ export default class Router {
 
     switch (first) {
       case 'auth':
-        return { name: 'auth' };
+        return rest.length === 0 ? { name: 'auth' } : { name: 'not-found' };
+
       case 'dashboard':
-        return { name: 'dashboard' };
+        return rest.length === 0 ? { name: 'dashboard' } : { name: 'not-found' };
+
       case 'done':
-        return { name: 'done' };
+        return rest.length === 0 ? { name: 'done' } : { name: 'not-found' };
+
       case 'day': {
         if (rest.length === 1) {
           const day = Number(rest[0]);
@@ -59,6 +62,7 @@ export default class Router {
 
       case '404':
         return { name: 'not-found' };
+
       default:
         return { name: 'not-found' };
     }

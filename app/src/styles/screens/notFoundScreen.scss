@@ -1,0 +1,29 @@
+.not-found-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 24px;
+
+  &__title {
+    margin: 0;
+    font-size: 72px;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  &__description {
+    margin: 0;
+    max-width: 420px;
+  }
+
+  &__button {
+    margin-top: 8px;
+  }
+}
