@@ -54,10 +54,13 @@ export default class Router {
             return { name: 'day', day };
           }
         }
-        return { name: 'start' };
+        return { name: 'not-found' };
       }
+
+      case '404':
+        return { name: 'not-found' };
       default:
-        return { name: 'start' };
+        return { name: 'not-found' };
     }
   }
 
@@ -73,6 +76,8 @@ export default class Router {
         return '/done';
       case 'day':
         return `/day/${route.day}`;
+      case 'not-found':
+        return '/404';
       default:
         throw new Error('Unknown route');
     }
