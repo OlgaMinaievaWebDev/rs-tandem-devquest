@@ -57,7 +57,7 @@ const renderApp = (state: AppState) => {
     case 'day':
       root.replaceChildren(
         renderDayScreen({
-          day: state.route.name === 'day' ? state.route.day : 1, // TS check
+          day: state.route.day,
           onBackToDashboard: handlers.onBackToDashboard,
         }),
       );
@@ -76,22 +76,11 @@ const handleRouterChange = (route: Route) => {
 router = new Router(handleRouterChange);
 
 // --- SUBSCRIBE TO STORE ---
-let currentRouteName: string | null = null;
-
 store.subscribe((state) => {
-  if (currentRouteName !== state.route.name) {
-    currentRouteName = state.route.name;
-    renderApp(state);
-  }
+  renderApp(state);
 });
 
 router.init();
-
-if (window.location.hash === '' || window.location.hash === '#/') {
-  router.navigate({ name: 'start' });
-} else {
-  renderApp(store.getState());
-}
 
 // root.append(
 //   createDayResultScreen({
