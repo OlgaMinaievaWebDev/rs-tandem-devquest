@@ -1,28 +1,19 @@
 import Router from './router/router';
-import type { Route } from './core/state';
+import { store } from './core/store';
+import type { AppState, Route } from './core/state';
+
 import { renderStartScreen } from './ui/screens/startScreen';
+import { renderAuthScreen } from './ui/screens/authScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
-import './styles/main.scss';
 import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
-import { renderAuthScreen } from './ui/screens/authScreen';
 import { getSession, onAuthStateChange, signIn, signUp } from './services/auth';
-// import { createDayResultScreen } from './ui/screens/dayResultScreen';
+import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
 
-let router: Router; // ✅ declare first so render can use it
-
-// const renderStart = () =>
-//   renderStartScreen({
-//     onStart: () => router.navigate({ name: 'dashboard' }),
-//   });
-
-const renderStart = () =>
-  renderStartScreen({
-    onStart: () => router.navigate({ name: 'auth' }),
-  });
+let router: Router;
 
 const initAuth = async () => {
   const session = await getSession();
@@ -49,31 +40,44 @@ const watchAuth = () => {
   });
 };
 
-const render = (route: Route) => {
-  switch (route.name) {
+// --- WIRE HANDLERS ---
+const handlers = {
+  onStart: () => router.navigate({ name: 'auth' }),
+
+  onSignIn: async (email: string, pass: string) => {
+    try {
+      await signIn(email, pass);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Login failed');
+    }
+  },
+
+  onSignUp: async (name: string, email: string, pass: string, avatar: string) => {
+    try {
+      await signUp(email, pass, name, avatar);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Sign up failed');
+    }
+  },
+
+  onSelectDay: (day: number) => router.navigate({ name: 'day', day }),
+
+  onBackToDashboard: () => router.navigate({ name: 'dashboard' }),
+};
+
+const renderApp = (state: AppState) => {
+  switch (state.route.name) {
     case 'start':
-      root.replaceChildren(renderStart());
+      root.replaceChildren(renderStartScreen({ onStart: handlers.onStart }));
       break;
 
     case 'auth':
       root.replaceChildren(
         renderAuthScreen({
-          onSignIn: async (email, pass) => {
-            try {
-              await signIn(email, pass);
-            } catch (error) {
-              console.error(error);
-              alert(error instanceof Error ? error.message : 'Login failed');
-            }
-          },
-          onSignUp: async (name, email, pass, avatar) => {
-            try {
-              await signUp(email, pass, name, avatar);
-            } catch (error) {
-              console.error(error);
-              alert(error instanceof Error ? error.message : 'Sign up failed');
-            }
-          },
+          onSignIn: handlers.onSignIn,
+          onSignUp: handlers.onSignUp,
         }),
       );
       break;
@@ -81,7 +85,7 @@ const render = (route: Route) => {
     case 'dashboard':
       root.replaceChildren(
         renderDashboardScreen({
-          onSelectDay: (day: number) => router.navigate({ name: 'day', day }),
+          onSelectDay: handlers.onSelectDay,
         }),
       );
       break;
@@ -89,8 +93,8 @@ const render = (route: Route) => {
     case 'day':
       root.replaceChildren(
         renderDayScreen({
-          day: route.day,
-          onBackToDashboard: () => router.navigate({ name: 'dashboard' }),
+          day: state.route.day,
+          onBackToDashboard: handlers.onBackToDashboard,
         }),
       );
       break;
@@ -104,26 +108,26 @@ const render = (route: Route) => {
       break;
 
     default:
-      root.replaceChildren(renderStart());
+      root.replaceChildren(renderStartScreen({ onStart: handlers.onStart }));
   }
 };
 
-const handleRouter = (route: Route) => render(route);
+// --- INITIALIZE ROUTER & STORE ---
+const handleRouterChange = (route: Route) => {
+  store.setState({ route });
+};
 
-router = new Router(handleRouter); // ✅ assign after render exists
+router = new Router(handleRouterChange);
+
+// --- SUBSCRIBE TO STORE ---
+store.subscribe((state) => {
+  renderApp(state);
+});
+
 router.init();
+
 initAuth().catch((error) => {
   console.error(error);
 });
-watchAuth();
 
-// root.append(
-//   createDayResultScreen({
-//     day: 1,
-//     stress: 10,
-//     xpGained: 100,
-//     onNextDay: () => {
-//       console.log('show next day');
-//     },
-//   }),
-// );
+watchAuth();
