@@ -6,6 +6,7 @@ import { renderStartScreen } from './ui/screens/startScreen';
 import { renderAuthScreen } from './ui/screens/authScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
 import renderDayScreen from './ui/screens/day/dayScreen';
+import renderNotFoundScreen from './ui/screens/notFoundScreen';
 // import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import './styles/main.scss';
 
@@ -59,6 +60,14 @@ const renderApp = (state: AppState) => {
         renderDayScreen({
           day: state.route.day,
           onBackToDashboard: handlers.onBackToDashboard,
+        }),
+      );
+      break;
+
+    case 'not-found':
+      root.replaceChildren(
+        renderNotFoundScreen({
+          onBackHome: () => router.navigate({ name: 'dashboard' }),
         }),
       );
       break;
