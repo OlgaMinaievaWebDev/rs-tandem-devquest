@@ -7,7 +7,7 @@ import { renderAuthScreen } from './ui/screens/authScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
 import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
-import { getSession, onAuthStateChange, signIn, signUp } from './services/auth';
+import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -62,6 +62,15 @@ const handlers = {
     }
   },
 
+  onSignOut: async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Sign out failed');
+    }
+  },
+
   onSelectDay: (day: number) => router.navigate({ name: 'day', day }),
 
   onBackToDashboard: () => router.navigate({ name: 'dashboard' }),
@@ -86,6 +95,7 @@ const renderApp = (state: AppState) => {
       root.replaceChildren(
         renderDashboardScreen({
           onSelectDay: handlers.onSelectDay,
+          onSignOut: handlers.onSignOut,
         }),
       );
       break;
