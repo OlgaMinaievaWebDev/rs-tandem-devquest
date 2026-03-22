@@ -7,7 +7,7 @@ import { renderAuthScreen } from './ui/screens/authScreen';
 import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
 import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
-// import { createDayResultScreen } from './ui/screens/dayResultScreen';
+import { getSession, onAuthStateChange, signIn, signUp } from './services/auth';
 import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -15,16 +15,51 @@ if (!root) throw new Error('#app not found');
 
 let router: Router;
 
+const initAuth = async () => {
+  const session = await getSession();
+
+  if (session?.user) {
+    router.navigate({ name: 'dashboard' });
+  }
+};
+
+const watchAuth = () => {
+  onAuthStateChange(() => {
+    getSession()
+      .then((session) => {
+        if (session?.user) {
+          router.navigate({ name: 'dashboard' });
+          return;
+        }
+
+        router.navigate({ name: 'auth' });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  });
+};
+
 // --- WIRE HANDLERS ---
 const handlers = {
-  onStart: () => router.navigate({ name: 'dashboard' }),
+  onStart: () => router.navigate({ name: 'auth' }),
 
-  onSignIn: (_email: string, _pass: string) => {
-    router.navigate({ name: 'dashboard' });
+  onSignIn: async (email: string, pass: string) => {
+    try {
+      await signIn(email, pass);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Login failed');
+    }
   },
-  onSignUp: (name: string, email: string, _pass: string, _avatar: string) => {
-    store.setState({ user: { id: Date.now().toString(), email, name } });
-    router.navigate({ name: 'dashboard' });
+
+  onSignUp: async (name: string, email: string, pass: string, avatar: string) => {
+    try {
+      await signUp(email, pass, name, avatar);
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Sign up failed');
+    }
   },
 
   onSelectDay: (day: number) => router.navigate({ name: 'day', day }),
@@ -91,13 +126,8 @@ store.subscribe((state) => {
 
 router.init();
 
-// root.append(
-//   createDayResultScreen({
-//     day: 1,
-//     stress: 10,
-//     xpGained: 100,
-//     onNextDay: () => {
-//       console.log('show next day');
-//     },
-//   }),
-// );
+initAuth().catch((error) => {
+  console.error(error);
+});
+
+watchAuth();
