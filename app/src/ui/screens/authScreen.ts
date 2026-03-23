@@ -2,8 +2,8 @@ import { createButton } from '../components/button';
 import '../../styles/screens/authScreen.scss';
 
 export type AuthScreenHandlers = {
-  onSignIn: (email: string, pass: string) => void;
-  onSignUp: (name: string, email: string, pass: string, avatar: string) => void;
+  onSignIn: (email: string, pass: string) => Promise<void>;
+  onSignUp: (name: string, email: string, pass: string, avatar: string) => Promise<void>;
 };
 
 const AVATARS = Object.values(
@@ -40,6 +40,7 @@ function createInputGroup(
 export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
   let isSignUp = false;
   let selectedAvatar = AVATARS[0];
+  let isLoading = false;
 
   const screen = document.createElement('section');
   screen.className = 'auth-screen';
@@ -121,18 +122,30 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
     submitBtn.classList.add('auth-screen__submit-btn');
     formGroupSubmit.appendChild(submitBtn);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (isLoading) return;
+
+      isLoading = true;
+      submitBtn.textContent = 'Loading...';
+      submitBtn.disabled = true;
 
       const formData = new FormData(form);
       const email = String(formData.get('email'));
       const pass = String(formData.get('password'));
 
-      if (isSignUp) {
-        const name = String(formData.get('username'));
-        handlers.onSignUp(name, email, pass, selectedAvatar);
-      } else {
-        handlers.onSignIn(email, pass);
+      try {
+        if (isSignUp) {
+          const name = String(formData.get('username'));
+          await handlers.onSignUp(name, email, pass, selectedAvatar);
+        } else {
+          await handlers.onSignIn(email, pass);
+        }
+      } finally {
+        isLoading = false;
+        submitBtn.textContent = isSignUp ? 'SIGN UP' : 'SIGN IN';
+        submitBtn.disabled = false;
       }
     });
 
