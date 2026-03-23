@@ -1,0 +1,50 @@
+@use '../abstracts/variables' as *;
+
+.loader {
+  &__container {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 0;
+    top: 0;
+    background: rgba($black, 0.4);
+    width: 100%;
+    height: 100%;
+    font-size: $text-md;
+    &--hidden {
+      display: none;
+    }
+  }
+  &__wrapp {
+    padding: 1em;
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+    border-radius: $radius-md;
+    background: $grey-800;
+    border: 1px solid $grey-700;
+  }
+  &__spinner {
+    width: 2em;
+    height: 2em;
+    border: 4px solid $light-grey;
+    border-top: 4px solid $green;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  &__message {
+    color: $white;
+    font-weight: 700;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

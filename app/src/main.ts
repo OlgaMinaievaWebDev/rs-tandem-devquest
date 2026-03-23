@@ -28,6 +28,14 @@ const watchAuth = () => {
     getSession()
       .then((session) => {
         if (session?.user) {
+          store.setState({
+            user: {
+              id: session.user.id,
+              email: session.user['user_metadata'].email || '',
+              name: session.user['user_metadata']?.name,
+              avatarId: session.user['user_metadata']?.avatar,
+            },
+          });
           router.navigate({ name: 'dashboard' });
           return;
         }
