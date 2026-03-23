@@ -1,15 +1,18 @@
 import '../../../styles/screens/dashboard/dashboardHeader.scss';
+import { createButton } from '../../components/button';
 
 export type DashboardHeaderProps = {
   title?: string;
   day: number;
   totalDays?: number;
+  onSignOut: () => void;
 };
 
 export function createDashboardHeader({
   title = 'DevQuest',
   day,
   totalDays = 7,
+  onSignOut,
 }: DashboardHeaderProps): HTMLElement {
   const header = document.createElement('div');
   header.className = 'dashboard-header';
@@ -47,7 +50,17 @@ export function createDashboardHeader({
 
   const right = document.createElement('div');
   right.className = 'dashboard-header__right';
-  // widgets later
+
+  // signOut btn
+  const signOutButton = createButton({
+    label: 'Sign out',
+    variant: 'terminal',
+    onClick: () => {
+      onSignOut();
+    },
+  });
+
+  right.append(signOutButton);
 
   header.append(left, center, right);
   return header;
