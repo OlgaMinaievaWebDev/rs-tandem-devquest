@@ -54,7 +54,7 @@ export function createDashboardHeader({
   // signOut btn
   const signOutButton = createButton({
     label: 'Sign out',
-    variant: 'danger',
+    variant: 'terminal',
     onClick: () => {
       onSignOut();
     },

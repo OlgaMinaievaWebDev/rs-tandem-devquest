@@ -8,12 +8,19 @@ import '../../../styles/screens/day/dayScreen.scss';
 export type DayScreenProps = {
   day: number;
   onBackToDashboard: () => void;
+  onSignOut: () => void;
 };
 
-export default function renderDayScreen({ day, onBackToDashboard }: DayScreenProps): HTMLElement {
+export default function renderDayScreen({
+  day,
+  onBackToDashboard,
+  onSignOut,
+}: DayScreenProps): HTMLElement {
   const layout = createDashboardLayout();
 
-  layout.header.replaceChildren(createDashboardHeader({ day, totalDays: 7, title: 'DevQuest' }));
+  layout.header.replaceChildren(
+    createDashboardHeader({ day, totalDays: 7, title: 'DevQuest', onSignOut }),
+  );
 
   layout.sidebar.replaceChildren(
     createSidebar({

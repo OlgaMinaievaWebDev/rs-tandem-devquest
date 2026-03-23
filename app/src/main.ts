@@ -105,6 +105,7 @@ const renderApp = (state: AppState) => {
         renderDayScreen({
           day: state.route.day,
           onBackToDashboard: handlers.onBackToDashboard,
+          onSignOut: handlers.onSignOut,
         }),
       );
       break;
