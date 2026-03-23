@@ -1,5 +1,6 @@
 import { createButton } from '../components/button';
 import '../../styles/screens/authScreen.scss';
+import { Loader } from '../components/loader';
 import { debounce } from '../../utils/debounce';
 import {
   validateEmail,
@@ -64,9 +65,11 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
   const screen = document.createElement('section');
   screen.className = 'auth-screen';
 
+  let spinner = new Loader();
+
   const card = document.createElement('div');
   card.className = 'auth-screen__card';
-  screen.appendChild(card);
+  screen.append(card, spinner.getElement());
 
   // Login <-> Sign Up
   function renderCardContent() {
@@ -105,10 +108,6 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
     formGroupSubmit.className = 'auth-screen__form-submit';
     form.appendChild(formGroupSubmit);
 
-    // Global error span (for server errors)
-    const serverErrorSpan = document.createElement('span');
-    serverErrorSpan.classList.add('auth-screen__server-error');
-
     const submitBtn = createButton({
       label: isSignUp ? 'SIGN UP' : 'SIGN IN',
       variant: 'terminal',
@@ -117,7 +116,7 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
     submitBtn.type = 'submit';
     submitBtn.classList.add('auth-screen__submit-btn');
     submitBtn.disabled = true;
-    formGroupSubmit.append(serverErrorSpan, submitBtn);
+    formGroupSubmit.append(submitBtn);
 
     const runValidation = setupFormValidation(
       isSignUp,
@@ -129,12 +128,11 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      serverErrorSpan.textContent = '';
 
       if (isLoading) return;
 
       isLoading = true;
-      submitBtn.textContent = 'Loading...';
+      spinner.show();
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
@@ -150,8 +148,8 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
         }
       } finally {
         isLoading = false;
-        submitBtn.textContent = isSignUp ? 'SIGN UP' : 'SIGN IN';
-        submitBtn.disabled = false;
+        spinner.hide();
+        runValidation();
       }
     });
 

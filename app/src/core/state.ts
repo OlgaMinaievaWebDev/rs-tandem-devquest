@@ -11,7 +11,8 @@ export type Route =
 export interface User {
   id: string;
   email: string;
-  name?: string; // optional for flexibility (can be shown on dashboard if present)
+  name?: string;
+  avatarId?: string;
 }
 
 export interface GameState {
