@@ -9,6 +9,7 @@ import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import './styles/main.scss';
+import { createGamePlayScreen } from './ui/screens/gamePlayScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -28,14 +29,6 @@ const watchAuth = () => {
     getSession()
       .then((session) => {
         if (session?.user) {
-          store.setState({
-            user: {
-              id: session.user.id,
-              email: session.user['user_metadata'].email || '',
-              name: session.user['user_metadata']?.name,
-              avatarId: session.user['user_metadata']?.avatar,
-            },
-          });
           router.navigate({ name: 'dashboard' });
           return;
         }
@@ -150,3 +143,17 @@ initAuth().catch((error) => {
 });
 
 watchAuth();
+
+// Testing
+setTimeout(() => {
+  const dashboardMain = document.querySelector('.dashboard__main');
+  const dashboardMainRemove = document.querySelector('.dashboard-main');
+  dashboardMainRemove?.remove();
+
+  dashboardMain?.append(
+    createGamePlayScreen({
+      day: 1,
+      gameId: 'bugfix',
+    }),
+  );
+}, 500);
