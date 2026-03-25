@@ -1,6 +1,5 @@
 import { createButton } from '../components/button';
 import '../../styles/screens/authScreen.scss';
-import { Loader } from '../components/loader';
 import { debounce } from '../../utils/debounce';
 import {
   validateEmail,
@@ -65,11 +64,9 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
   const screen = document.createElement('section');
   screen.className = 'auth-screen';
 
-  let spinner = new Loader();
-
   const card = document.createElement('div');
   card.className = 'auth-screen__card';
-  screen.append(card, spinner.getElement());
+  screen.append(card);
 
   // Login <-> Sign Up
   function renderCardContent() {
@@ -132,7 +129,6 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
       if (isLoading) return;
 
       isLoading = true;
-      spinner.show();
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
@@ -148,7 +144,6 @@ export function renderAuthScreen(handlers: AuthScreenHandlers): HTMLElement {
         }
       } finally {
         isLoading = false;
-        spinner.hide();
         runValidation();
       }
     });
