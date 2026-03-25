@@ -8,7 +8,7 @@ import renderDashboardScreen from './ui/screens/dashboard/dashboardScreen';
 import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
-import { Loader } from './ui/components/loader';
+import Loader from './ui/components/loader';
 import './styles/main.scss';
 
 const root = document.querySelector<HTMLDivElement>('#app');

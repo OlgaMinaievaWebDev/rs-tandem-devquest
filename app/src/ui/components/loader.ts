@@ -1,8 +1,10 @@
 import '../../styles/components/loader.scss';
 
-export class Loader {
+export default class Loader {
   private element: HTMLElement;
+
   private messageElement: HTMLElement;
+
   constructor() {
     this.element = document.createElement('div');
     this.element.classList.add('loader__container', 'loader__container--hidden');
