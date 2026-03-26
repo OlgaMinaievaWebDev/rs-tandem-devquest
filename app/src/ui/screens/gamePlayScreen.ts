@@ -2,6 +2,8 @@ import '../../styles/screens/gamePlayScreen.scss';
 
 import avatarBoss from '../../assets/avatars/avatar-boss.png';
 import paperPlaneIcon from '../../assets/icons/paper-plane-icon.svg';
+import { store } from '../../core/store';
+import { scrollToBottom, shouldScrollToBottom } from '../../utils/scrollUtils';
 
 export type GamePlayScreenProps = {
   day: number;
@@ -41,10 +43,6 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
   chatInputArea.append(chatTextArea, chatSendBtn);
   chat.append(chatMessages, chatInputArea);
 
-  const messagesArea = chat.querySelector('.chat__messages') as HTMLDivElement;
-  const textarea = chat.querySelector('.chat__textarea') as HTMLTextAreaElement;
-  const sendBtn = chat.querySelector('.chat__send-btn') as HTMLButtonElement;
-
   let messages: Array<{ type: 'boss' | 'user'; content: string }> = [];
 
   function addMessage(type: 'boss' | 'user', content: string) {
@@ -75,14 +73,16 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
     }
 
     if (type === 'user') {
-      // TODO: Get data from storage
-      const data = JSON.parse(localStorage.getItem('sb-hfetbhicznyhfynbgseh-auth-token') as any);
-      const userAvatar = data.user.user_metadata.avatar;
-      const userName = data.user.user_metadata.name;
+      const data = store.getState();
+      const userAvatar = data.user?.avatarId;
+      const userName = data.user?.name;
 
       const messageAvatar = document.createElement('img');
       messageAvatar.className = 'message__avatar';
-      messageAvatar.src = userAvatar;
+
+      if (typeof userAvatar === 'string') {
+        messageAvatar.src = userAvatar;
+      }
 
       const messageBubble = document.createElement('div');
       messageBubble.className = 'message__bubble';
@@ -100,16 +100,22 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
       messageDiv.append(messageAvatar, messageBubble);
     }
 
-    messagesArea.appendChild(messageDiv);
-    messagesArea.scrollTop = messagesArea.scrollHeight;
+    chatMessages.appendChild(messageDiv);
+
+    const isUserMessage = type === 'user';
+    const isNearBottom = shouldScrollToBottom(chatMessages);
+
+    if (isUserMessage || isNearBottom) {
+      scrollToBottom(chatMessages);
+    }
   }
 
-  function sendMessage() {
-    const text = textarea.value.trim();
+  const sendMessage = (): void => {
+    const text = chatTextArea.value.trim();
     if (!text) return;
 
     addMessage('user', text);
-    textarea.value = '';
+    chatTextArea.value = '';
 
     // Fake AI response for tests
     setTimeout(() => {
@@ -122,11 +128,11 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
 
       addMessage('boss', responses[Math.floor(Math.random() * responses.length)]);
     }, 700);
-  }
+  };
 
-  sendBtn.addEventListener('click', sendMessage);
+  chatSendBtn.addEventListener('click', sendMessage);
 
-  textarea.addEventListener('keydown', (e) => {
+  chatTextArea.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       sendMessage();
