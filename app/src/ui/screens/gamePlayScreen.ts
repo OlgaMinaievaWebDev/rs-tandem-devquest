@@ -3,7 +3,8 @@ import '../../styles/screens/gamePlayScreen.scss';
 import avatarBoss from '../../assets/avatars/avatar-boss.png';
 import paperPlaneIcon from '../../assets/icons/paper-plane-icon.svg';
 import { store } from '../../core/store';
-import { scrollToBottom, shouldScrollToBottom } from '../../utils/scrollUtils';
+import { afterRender, scrollToBottom, shouldScrollToBottom } from '../../utils/scrollUtils';
+import { renderMessageContent } from '../../utils/renderMessage';
 
 export type GamePlayScreenProps = {
   day: number;
@@ -22,7 +23,8 @@ export function createGamePlayScreen({ day, gameId }: GamePlayScreenProps): HTML
 
   const chatTextArea = document.createElement('textarea');
   chatTextArea.className = 'chat__textarea';
-  chatTextArea.placeholder = 'Type your answer or code here... (Ctrl+Enter to send)';
+  chatTextArea.placeholder =
+    'Type your answer or code here... Use ```js for code blocks (Ctrl+Enter to send)';
   // TODO: REMOVE (ONLY FOR TESTS)
   chatTextArea.textContent = `Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
 
@@ -45,7 +47,9 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
 
   let messages: Array<{ type: 'boss' | 'user'; content: string }> = [];
 
-  function addMessage(type: 'boss' | 'user', content: string) {
+  const addMessage = (type: 'boss' | 'user', content: string) => {
+    const wasNearBottom = shouldScrollToBottom(chatMessages);
+
     messages.push({ type, content });
 
     const messageDiv = document.createElement('div');
@@ -66,7 +70,8 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
       const messageContent = document.createElement('div');
       messageContent.className = 'message__content';
 
-      messageContent.textContent = `${content}`;
+      messageContent.innerHTML = renderMessageContent(content);
+      // messageContent.textContent = `${content}`;
 
       messageBubble.append(messageLabel, messageContent);
       messageDiv.append(messageAvatar, messageBubble);
@@ -94,7 +99,8 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
       const messageContent = document.createElement('div');
       messageContent.className = 'message__content';
 
-      messageContent.textContent = `${content}`;
+      // messageContent.textContent = `${content}`;
+      messageContent.innerHTML = renderMessageContent(content);
 
       messageBubble.append(messageLabel, messageContent);
       messageDiv.append(messageAvatar, messageBubble);
@@ -103,12 +109,19 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
     chatMessages.appendChild(messageDiv);
 
     const isUserMessage = type === 'user';
-    const isNearBottom = shouldScrollToBottom(chatMessages);
 
-    if (isUserMessage || isNearBottom) {
-      scrollToBottom(chatMessages);
+    if (isUserMessage) {
+      afterRender(() => {
+        scrollToBottom(chatMessages);
+      });
+    } else {
+      if (wasNearBottom) {
+        afterRender(() => {
+          scrollToBottom(chatMessages);
+        });
+      }
     }
-  }
+  };
 
   const sendMessage = (): void => {
     const text = chatTextArea.value.trim();
@@ -116,14 +129,82 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
 
     addMessage('user', text);
     chatTextArea.value = '';
+    chatTextArea.focus();
 
     // Fake AI response for tests
     setTimeout(() => {
       const responses = [
-        'Interesting approach. Can you show me the code?',
-        'Not bad. But we should also handle the edge case.',
-        "Good thinking. Now let's test it.",
-        'I like where this is going. Continue.',
+        `Good start! But we need to handle the edge case when the array is empty.
+
+\`\`\`javascript
+function fixArrayBug(items) {
+  if (!items || items.length === 0) {
+    console.warn('Received empty array');
+    return [];
+  }
+
+  return items.map(item => {
+    if (item.status === 'broken') {
+      item.status = 'fixed';
+      item.fixedAt = new Date().toISOString();
+    }
+    return item;
+  });
+}
+\`\`\``,
+
+        `I see an issue with the error handling. Let's improve it:
+
+\`\`\`typescript
+function processItems(items: any[]): any[] {
+  if (!Array.isArray(items)) {
+    throw new Error('Input must be an array');
+  }
+
+  return items.map(item => {
+    if (item.status === 'broken') {
+      item.status = 'fixed';
+    }
+    return item;
+  });
+}
+\`\`\``,
+
+        `Performance can be improved by filtering broken items first:
+
+\`\`\`javascript
+const optimizedFix = (items) =>
+  items?.filter(item => item.status === 'broken')
+       .map(item => ({ ...item, status: 'fixed', fixedAt: new Date().toISOString() })) || [];
+\`\`\``,
+
+        `Here's a cleaner functional approach:
+
+\`\`\`javascript
+function fixBug(data) {
+  return {
+    ...data,
+    status: data.status === 'broken' ? 'fixed' : data.status,
+    lastUpdated: new Date().toISOString(),
+  };
+}
+\`\`\``,
+
+        `Remember to handle nested structures carefully:
+
+\`\`\`javascript
+function deepFix(items) {
+  return items.map(item => {
+    if (item.status === 'broken') {
+      item.status = 'fixed';
+    }
+    if (item.children) {
+      item.children = deepFix(item.children);
+    }
+    return item;
+  });
+}
+\`\`\``,
       ];
 
       addMessage('boss', responses[Math.floor(Math.random() * responses.length)]);

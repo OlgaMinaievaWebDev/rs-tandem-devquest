@@ -16,6 +16,7 @@
     "format:staged": "prettier -w"
   },
   "devDependencies": {
+    "@types/marked": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^8.57.1",
@@ -29,6 +30,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.3",
+    "highlight.js": "^11.11.1",
+    "marked": "^17.0.5",
+    "marked-highlight": "^2.2.3",
     "vitest": "^4.1.0"
   }
 }
