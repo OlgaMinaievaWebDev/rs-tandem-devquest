@@ -1,24 +1,35 @@
 export const shouldScrollToBottom = (element: HTMLElement, threshold: number = 150): boolean => {
-  return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+  const { scrollHeight, scrollTop, clientHeight } = element;
+
+  return scrollHeight - scrollTop - clientHeight < threshold;
 };
 
-export const scrollToBottom = (
-  element: HTMLElement,
-  smooth: boolean = true,
-  delay: number = 10,
-): void => {
-  setTimeout(() => {
-    requestAnimationFrame(() => {
-      const targetScroll = element.scrollHeight;
+let scheduled = false;
 
-      if (smooth) {
-        element.scrollTo({
-          top: targetScroll,
+export const scrollToBottom = (container: HTMLElement, smooth: boolean = true): void => {
+  if (scheduled) return;
+  scheduled = true;
+
+  requestAnimationFrame(() => {
+    if (smooth) {
+      const last = container.lastElementChild as HTMLElement | null;
+
+      if (last) {
+        last.scrollIntoView({
           behavior: 'smooth',
+          block: 'end',
         });
-      } else {
-        element.scrollTop = targetScroll;
       }
-    });
-  }, delay);
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+
+    scheduled = false;
+  });
+};
+
+export const afterRender = (cb: () => void) => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(cb);
+  });
 };
