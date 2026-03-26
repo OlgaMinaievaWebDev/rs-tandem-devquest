@@ -9,6 +9,7 @@ import renderDayScreen from './ui/screens/day/dayScreen';
 import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import './styles/main.scss';
+import { showError } from './ui/components/toast';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -150,3 +151,5 @@ initAuth().catch((error) => {
 });
 
 watchAuth();
+
+showError('eroroe boooasjd;lf');
