@@ -1,6 +1,6 @@
 import '../../styles/screens/gamePlayScreen.scss';
 
-import avatarBoss from '../../assets/avatars/avatar-boss.png';
+import avatarBoss from '../../assets/system/avatar-boss.png';
 import paperPlaneIcon from '../../assets/icons/paper-plane-icon.svg';
 import { store } from '../../core/store';
 import { afterRender, scrollToBottom, shouldScrollToBottom } from '../../utils/scrollUtils';
