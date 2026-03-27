@@ -22,6 +22,7 @@ module.exports = {
 
     // Standard
     'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-param-reassign': ['error', { props: false }],
   },
   ignorePatterns: ['dist', 'node_modules'],
 
