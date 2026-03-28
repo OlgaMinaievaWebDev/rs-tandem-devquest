@@ -2,7 +2,7 @@ import '../../../styles/screens/dashboard/dashboardMain.scss';
 
 export type DashboardMainProps = {
   totalDays?: number;
-  currentDay?: number; // used for lock/unlock UI
+  currentDay?: number;
   onSelectDay?: (day: number) => void;
 };
 
@@ -22,14 +22,14 @@ export function createDashboardMain({
   list.className = 'dashboard-main__grid';
 
   for (let day = 1; day <= totalDays; day += 1) {
+    const isCompleted = day < currentDay;
+    const isLocked = day > currentDay;
+
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'dashboard-main__card';
-
-    const locked = day > currentDay;
-    if (locked) card.classList.add('is-locked');
-
-    card.disabled = locked;
+    if (isCompleted) card.classList.add('dashboard-main__card--completed');
+    if (isLocked) card.classList.add('dashboard-main__card--is-locked');
 
     const label = document.createElement('div');
     label.className = 'dashboard-main__day';
@@ -37,7 +37,14 @@ export function createDashboardMain({
 
     const status = document.createElement('div');
     status.className = 'dashboard-main__status';
-    status.textContent = locked ? 'Locked' : 'Start';
+
+    if (isCompleted) {
+      status.textContent = `Completed ✅`;
+    } else if (isLocked) {
+      status.textContent = `Locked 🔒`;
+    } else {
+      status.textContent = `Start 🚀`;
+    }
 
     card.append(label, status);
 

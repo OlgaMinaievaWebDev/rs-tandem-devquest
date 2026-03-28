@@ -22,6 +22,7 @@ export interface GameState {
   xp: number;
   selectedSkills: SkillType[];
   status: 'idle' | 'playing' | 'completed';
+  completedTasksToday: string[];
 }
 
 export interface AppState {
@@ -37,6 +38,7 @@ const defaultGameState: GameState = {
   xp: 0,
   selectedSkills: [],
   status: 'idle',
+  completedTasksToday: [],
 };
 
 export const initialState: AppState = {

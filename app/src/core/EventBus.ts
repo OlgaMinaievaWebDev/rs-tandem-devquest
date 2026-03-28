@@ -1,6 +1,6 @@
 export type EventMap = {
   GAME_STARTED: { gameId: string; day: number };
-  TASK_FINISHED: { outcome: 'correct' | 'wrong' | 'timeout'; userAnswer: string };
+  TASK_FINISHED: { gameId: string; outcome: 'correct' | 'wrong' | 'timeout' };
   DAY_COMPLETED: { day: number };
   STRESS_CHANGED: { amount: number };
 };

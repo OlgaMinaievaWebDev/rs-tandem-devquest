@@ -30,17 +30,25 @@
     flex-direction: column;
     gap: $space-2;
 
-    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      transform 120ms ease;
 
-    &:hover:not(.is-locked) {
+    &:hover {
       border-color: $color-success;
       box-shadow: 0 0 10px rgba($color-success, 0.25);
       transform: translateY(-2px);
     }
 
-    &.is-locked {
-      opacity: 0.5;
-      cursor: not-allowed;
+    &--is-locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    &--completed {
+      border-color: rgba($green-solid, 0.5);
+      opacity: 0.6;
+      pointer-events: none;
     }
   }
 

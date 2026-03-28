@@ -11,6 +11,7 @@ import { getSession, onAuthStateChange, signIn, signUp, signOut } from './servic
 import Loader from './ui/components/loader';
 import './styles/main.scss';
 import { eventBus } from './core/EventBus';
+import './game/DayManager';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -112,6 +113,7 @@ const renderApp = (state: AppState) => {
     case 'dashboard':
       root.replaceChildren(
         renderDashboardScreen({
+          currentDay: store.getState().game.day,
           onSelectDay: handlers.onSelectDay,
           onSignOut: handlers.onSignOut,
         }),
@@ -122,6 +124,7 @@ const renderApp = (state: AppState) => {
       root.replaceChildren(
         renderDayScreen({
           day: state.route.day,
+          completedTasks: state.game.completedTasksToday,
           onBackToDashboard: handlers.onBackToDashboard,
           onSignOut: handlers.onSignOut,
         }),
@@ -169,7 +172,18 @@ router.init();
 watchAuth();
 
 eventBus.on('GAME_STARTED', (payload) => {
-  // Здесь в будущем будет вызов роутера для перехода к виджету:
-  // router.navigate({ name: 'widget', gameId: payload.gameId });
   alert(`Начинаем игру: ${payload.gameId}!`);
+});
+
+eventBus.on('TASK_FINISHED', () => {
+  const state = store.getState();
+  if (state.game.completedTasksToday.length === 0) {
+    return;
+  }
+  const currentDay = state.game.day;
+  router.navigate({ name: 'day', day: currentDay });
+});
+
+eventBus.on('DAY_COMPLETED', () => {
+  router.navigate({ name: 'dashboard' });
 });

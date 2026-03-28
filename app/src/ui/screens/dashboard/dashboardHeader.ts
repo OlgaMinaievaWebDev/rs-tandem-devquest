@@ -30,7 +30,7 @@ export function createDashboardHeader({
 
   const dayText = document.createElement('div');
   dayText.className = 'dashboard-header__day';
-  dayText.textContent = `Day ${day} / ${totalDays}`;
+  dayText.textContent = `Day ${Math.min(day, totalDays)} / ${totalDays}`;
 
   const progress = document.createElement('div');
   progress.className = 'dashboard-header__progress';
