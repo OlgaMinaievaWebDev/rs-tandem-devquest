@@ -34,7 +34,6 @@ export default function renderDayScreen({
   layout.main.replaceChildren(
     createDayMain({
       day,
-      onStartGame: (_gameId) => {},
       onBackToDashboard,
     }),
   );

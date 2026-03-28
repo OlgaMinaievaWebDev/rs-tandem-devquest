@@ -1,5 +1,6 @@
 import { createButton } from '../../components/button';
 import '../../../styles/screens/day/dayMain.scss';
+import { eventBus } from '../../../core/EventBus';
 
 export type DayGameId = 'bugfix' | 'quiz' | 'debug';
 
@@ -7,7 +8,6 @@ export type DayMainProps = {
   day: number;
   briefing?: string;
   aiMessage?: string;
-  onStartGame?: (gameId: DayGameId) => void;
   onBackToDashboard?: () => void;
 };
 
@@ -27,7 +27,6 @@ export function createDayMain({
   day: _day,
   briefing = 'Your team lead assigned you a task. Pick an approach and complete it.',
   aiMessage = 'AI Lead: Welcome to today’s task. Do it by the book.',
-  onStartGame,
   onBackToDashboard,
 }: DayMainProps): HTMLElement {
   const root = document.createElement('section');
@@ -75,7 +74,7 @@ export function createDayMain({
     btn.append(btnTitle, btnSub);
 
     btn.addEventListener('click', () => {
-      onStartGame?.(game.id);
+      eventBus.emit('GAME_STARTED', { gameId: game.id, day: _day });
     });
 
     games.append(btn);

@@ -10,6 +10,7 @@ import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import Loader from './ui/components/loader';
 import './styles/main.scss';
+import { eventBus } from './core/EventBus';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -166,3 +167,9 @@ store.subscribe((state) => {
 
 router.init();
 watchAuth();
+
+eventBus.on('GAME_STARTED', (payload) => {
+  // Здесь в будущем будет вызов роутера для перехода к виджету:
+  // router.navigate({ name: 'widget', gameId: payload.gameId });
+  alert(`Начинаем игру: ${payload.gameId}!`);
+});
