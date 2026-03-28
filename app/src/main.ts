@@ -58,7 +58,7 @@ const handlers = {
       await signIn(email, pass);
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : 'Login failed');
+      showError('Login failed');
     }
   },
 
@@ -67,7 +67,7 @@ const handlers = {
       await signUp(email, pass, name, avatar);
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : 'Sign up failed');
+      showError('Sign up failed');
     }
   },
 
@@ -76,7 +76,7 @@ const handlers = {
       await signOut();
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : 'Sign out failed');
+      showError('Sign out failed');
     }
   },
 
@@ -151,5 +151,3 @@ initAuth().catch((error) => {
 });
 
 watchAuth();
-
-showError('eroroe boooasjd;lf');

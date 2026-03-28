@@ -1,6 +1,8 @@
 import '../../styles/components/toast.scss';
+import successSvg from '../../assets/icons/success.svg';
+import warningSvg from '../../assets/icons/warning.svg';
 
-export type ToastType = 'error' | 'success' | 'info';
+export type ToastType = 'error' | 'success';
 
 let toastContainer: HTMLDivElement | null = null;
 
@@ -27,9 +29,9 @@ export function showToast(
   const content = document.createElement('div');
   content.className = 'toast__content';
 
-  const icon = document.createElement('span');
+  const icon = document.createElement('img');
   icon.className = 'toast__icon';
-  icon.textContent = type === 'success' ? '✓' : type === 'error' ? '⚠' : 'ℹ';
+  icon.src = type === 'success' ? successSvg : warningSvg;
 
   const text = document.createElement('span');
   text.className = 'toast__message';
@@ -48,7 +50,6 @@ export function showToast(
     dismissToast(toast);
   }, duration);
 
-  // Click to dismiss
   toast.addEventListener('click', () => {
     clearTimeout(timeoutId);
     dismissToast(toast);
@@ -71,4 +72,4 @@ function dismissToast(toast: HTMLDivElement) {
 }
 
 export const showError = (message: string) => showToast(message, 'error');
-export const showSuccess = (message: string) => showToast(message, 'success', 2500);
+export const showSuccess = (message: string) => showToast(message, 'success');
