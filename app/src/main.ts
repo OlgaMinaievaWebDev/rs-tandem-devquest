@@ -12,6 +12,7 @@ import Loader from './ui/components/loader';
 import './styles/main.scss';
 import { eventBus } from './core/EventBus';
 import './game/DayManager';
+import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -176,6 +177,7 @@ eventBus.on('GAME_STARTED', (payload) => {
 });
 
 eventBus.on('TASK_FINISHED', () => {
+  sidebarTimer.stop();
   const state = store.getState();
   if (state.game.completedTasksToday.length === 0) {
     return;

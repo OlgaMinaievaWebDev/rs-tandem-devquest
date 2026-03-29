@@ -1,0 +1,44 @@
+@use '../abstracts/variables' as *;
+.timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: $space-3;
+  border: 2px dashed $green-solid;
+  border-radius: $radius-md;
+
+  &-text {
+    font-family: $font-family-decorative;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    font-size: $text-xl;
+    font-weight: $weight-medium;
+    color: $green;
+  }
+  &--stopped {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  &--attention {
+    border-color: $color-danger;
+    animation: pulse 1s infinite;
+    .timer-text {
+      color: $red;
+    }
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($color-danger, 0.5);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba($grey-900, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba($grey-900, 0);
+  }
+}
