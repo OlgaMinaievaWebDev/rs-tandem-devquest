@@ -13,6 +13,7 @@ import './styles/main.scss';
 import { eventBus } from './core/EventBus';
 import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
+import renderGameScreen from './ui/screens/game/gameScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -132,6 +133,23 @@ const renderApp = (state: AppState) => {
       );
       break;
 
+    case 'game': {
+      const isCompleted = state.game.completedTasksToday.includes(state.route.gameId);
+      if (isCompleted) {
+        break;
+      }
+      root.replaceChildren(
+        renderGameScreen({
+          day: state.route.day,
+          gameId: state.route.gameId,
+          skill: state.game.selectedSkills[0] || 'Frontend',
+          onBack: () => router.navigate({ name: 'day', day: store.getState().game.day }),
+          onSignOut: handlers.onSignOut,
+        }),
+      );
+      break;
+    }
+
     case 'not-found':
       root.replaceChildren(
         renderNotFoundScreen({
@@ -165,19 +183,33 @@ const handleRouterChange = async (route: Route) => {
 
 router = new Router(handleRouterChange);
 
+let currentRouteString: string | null = null;
+
 store.subscribe((state) => {
-  renderApp(state);
+  const newRouteString = JSON.stringify(state.route);
+
+  if (currentRouteString !== newRouteString) {
+    currentRouteString = newRouteString;
+    renderApp(state);
+  }
 });
 
 router.init();
 watchAuth();
 
 eventBus.on('GAME_STARTED', (payload) => {
-  alert(`Начинаем игру: ${payload.gameId}!`);
+  router.navigate({ name: 'game', day: payload.day, gameId: payload.gameId });
 });
 
-eventBus.on('TASK_FINISHED', () => {
+eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
+
+  if (payload.outcome === 'timeout') {
+    alert(`Timeout!`);
+  } else {
+    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
+  }
+
   const state = store.getState();
   if (state.game.completedTasksToday.length === 0) {
     return;
@@ -185,7 +217,12 @@ eventBus.on('TASK_FINISHED', () => {
   const currentDay = state.game.day;
   router.navigate({ name: 'day', day: currentDay });
 });
-
+eventBus.on('TASK_STARTED', (payload) => {
+  sidebarTimer.play(payload.duration, payload.gameId);
+});
+eventBus.on('TASK_CANCELLED', () => {
+  sidebarTimer.stop();
+});
 eventBus.on('DAY_COMPLETED', () => {
   router.navigate({ name: 'dashboard' });
 });

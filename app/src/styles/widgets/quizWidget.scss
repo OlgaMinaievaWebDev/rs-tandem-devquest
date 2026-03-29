@@ -1,0 +1,114 @@
+@use '../abstracts/variables' as *;
+.quiz-widget {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: $space-5;
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $grey-400;
+  }
+  &__wrap {
+    width: min(820px, 100%);
+  }
+  &__progress {
+    font-size: $text-md;
+    color: $grey-400;
+  }
+
+  &__options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-4;
+    margin-top: $space-5;
+  }
+  &__question {
+    font-size: $text-lg;
+    font-weight: $weight-medium;
+    color: $white;
+    margin: 0;
+  }
+
+  &__option-btn {
+    padding: $space-4;
+    background-color: $grey-700;
+    border: 2px solid transparent;
+    color: $white;
+    cursor: pointer;
+    border-radius: $radius-md;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+    text-align: left;
+    font-size: 1rem;
+    position: relative;
+
+    &:hover {
+      background-color: $grey-800;
+      border-color: $grey-400;
+    }
+
+    &:disabled {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    &--correct {
+      border-color: $green-solid !important;
+      background-color: $grey-800 !important;
+      color: $white;
+
+      animation: scaleUp 0.4s ease forwards;
+      z-index: 10;
+      opacity: 1 !important;
+    }
+
+    &--wrong {
+      border-color: $color-danger !important;
+      background-color: rgba(244, 67, 54, 0.1) !important;
+      animation: shake 0.5s linear;
+    }
+
+    &--show-correct {
+      border-color: $green-solid;
+      opacity: 1 !important;
+    }
+  }
+}
+@keyframes scaleUp {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}

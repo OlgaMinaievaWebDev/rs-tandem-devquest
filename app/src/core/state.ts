@@ -5,6 +5,7 @@ export type Route =
   | { name: 'auth' }
   | { name: 'dashboard' }
   | { name: 'day'; day: number }
+  | { name: 'game'; day: number; gameId: string }
   | { name: 'not-found' }
   | { name: 'done' };
 

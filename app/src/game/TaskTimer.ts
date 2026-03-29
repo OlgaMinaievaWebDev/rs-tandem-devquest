@@ -45,6 +45,7 @@ export default class TaskTimer {
     eventBus.emit('TASK_FINISHED', {
       gameId: this.gameId,
       outcome: 'timeout',
+      userAnswer: '',
     });
   }
 

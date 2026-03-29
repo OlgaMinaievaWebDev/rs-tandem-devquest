@@ -1,4 +1,4 @@
-export type ButtonVariant = 'terminal' | 'danger' | 'warning';
+export type ButtonVariant = 'terminal' | 'danger' | 'warning' | 'secondary';
 
 export type ButtonOptions = {
   label: string;
