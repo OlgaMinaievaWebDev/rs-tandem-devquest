@@ -74,6 +74,9 @@
   background: $color-surface;
   padding: $space-2 $space-3;
   white-space: pre-wrap;
+  & > * {
+    margin: 0;
+  }
 }
 
 .message--boss .message__content {
