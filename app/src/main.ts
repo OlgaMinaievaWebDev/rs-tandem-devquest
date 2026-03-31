@@ -15,6 +15,8 @@ import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
 import { createDayResultScreen } from './ui/screens/dayResultScreen';
+import { showError } from './ui/components/toast';
+import { getErrorMessage } from './utils/getErrorMessage';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -62,8 +64,7 @@ const handlers = {
       spinner.show('Logging in...');
       await signIn(email, pass);
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'Login failed');
+      showError(getErrorMessage(error, 'Login failed'));
     } finally {
       spinner.hide();
     }
@@ -74,8 +75,7 @@ const handlers = {
       spinner.show('Creating account...');
       await signUp(email, pass, name, avatar);
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'Sign up failed');
+      showError(getErrorMessage(error, 'Login failed'));
     } finally {
       spinner.hide();
     }
@@ -86,8 +86,7 @@ const handlers = {
       spinner.show('Logging out...');
       await signOut();
     } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'Sign out failed');
+      showError(getErrorMessage(error, 'Login failed'));
     } finally {
       spinner.hide();
     }
