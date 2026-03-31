@@ -11,6 +11,46 @@ export type GamePlayScreenProps = {
   gameId: 'bugfix' | 'quiz' | 'debug';
 };
 
+const createTypingIndicator = () => {
+  const typingIndicator = document.createElement('div');
+  typingIndicator.className = 'message message--boss typing-indicator';
+  typingIndicator.style.display = 'none';
+
+  const typingAvatar = document.createElement('img');
+  typingAvatar.className = 'message__avatar';
+  typingAvatar.src = avatarBoss;
+
+  const typingBubble = document.createElement('div');
+  typingBubble.className = 'message__bubble';
+
+  const typingLabel = document.createElement('span');
+  typingLabel.className = 'message__label';
+  typingLabel.textContent = 'BOSS';
+
+  const typingContent = document.createElement('div');
+  typingContent.className = 'message__content typing-content';
+
+  const typingDotsContainer = document.createElement('span');
+  typingDotsContainer.className = 'typing-dots';
+
+  Array.from({ length: 3 }, () => {
+    const typingDot = document.createElement('span');
+    typingDot.className = 'typing-dot';
+    typingDotsContainer.append(typingDot);
+  });
+
+  const typingText = document.createElement('span');
+  typingText.className = 'typing-text';
+  typingText.textContent = 'Boss is typing';
+
+  typingContent.append(typingDotsContainer);
+  typingContent.append(typingText);
+  typingBubble.append(typingLabel, typingContent);
+  typingIndicator.append(typingAvatar, typingBubble);
+
+  return typingIndicator;
+};
+
 export function createGamePlayScreen({ day, gameId }: GamePlayScreenProps): HTMLElement {
   const chat = document.createElement('div');
   chat.className = 'chat';
@@ -116,16 +156,47 @@ export function createGamePlayScreen({ day, gameId }: GamePlayScreenProps): HTML
     }
   };
 
+  let isTyping = false;
+
+  const typingIndicator = createTypingIndicator();
+
+  const showTypingIndicator = () => {
+    chatMessages.append(typingIndicator);
+
+    typingIndicator.style.display = 'flex';
+
+    isTyping = true;
+    chatTextArea.disabled = true;
+    chatSendBtn.disabled = true;
+
+    afterRender(() => {
+      scrollToBottom(chatMessages);
+    });
+  };
+
+  const hideTypingIndicator = () => {
+    typingIndicator.style.display = 'none';
+
+    isTyping = false;
+    chatTextArea.disabled = false;
+    chatSendBtn.disabled = false;
+
+    chatTextArea.focus();
+  };
+
   const sendMessage = (): void => {
     const text = chatTextArea.value.trim();
     if (!text) return;
 
     addMessage('user', text);
     chatTextArea.value = '';
-    chatTextArea.focus();
+
+    showTypingIndicator();
 
     // Fake AI response for tests
     setTimeout(() => {
+      hideTypingIndicator();
+
       const responses = [
         `Good start! But we need to handle the edge case when the array is empty.
 
@@ -201,7 +272,7 @@ function deepFix(items) {
       ];
 
       addMessage('boss', responses[Math.floor(Math.random() * responses.length)]);
-    }, 700);
+    }, 3000);
   };
 
   chatSendBtn.addEventListener('click', sendMessage);
