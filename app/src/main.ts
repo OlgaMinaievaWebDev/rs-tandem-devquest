@@ -175,6 +175,10 @@ const handleRouterChange = async (route: Route) => {
     return;
   }
 
+  if (route.name !== 'game') {
+    sidebarTimer.stop();
+  }
+
   if (isLogged) {
     const state = store.getState();
     const actualCurrentDay = state.game.day;
