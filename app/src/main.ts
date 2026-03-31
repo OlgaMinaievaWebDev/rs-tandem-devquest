@@ -14,6 +14,7 @@ import { eventBus } from './core/EventBus';
 import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
+import { createDayResultScreen } from './ui/screens/dayResultScreen';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -216,17 +217,17 @@ eventBus.on('GAME_STARTED', (payload) => {
 eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
 
+  const state = store.getState();
+  if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
+    return;
+  }
+
   if (payload.outcome === 'timeout') {
     alert(`Timeout!`);
   } else if (payload.outcome === 'wrong') {
     alert(`You ${payload.outcome}! ${payload.userAnswer}`);
   } else if (payload.outcome === 'correct') {
     alert(`You ${payload.outcome}! ${payload.userAnswer}`);
-  }
-
-  const state = store.getState();
-  if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
-    return;
   }
 
   const currentDay = state.game.day;
@@ -242,5 +243,13 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  router.navigate({ name: 'dashboard' });
+  const game = store.getState().game;
+  root.append(
+    createDayResultScreen({
+      day: game.day - 1,
+      stress: game.stress,
+      xpGained: game.xp,
+      onNextDay: () => router.navigate({ name: 'day', day: game.day }),
+    }),
+  );
 });

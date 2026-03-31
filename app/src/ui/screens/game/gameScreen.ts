@@ -2,6 +2,7 @@ import { createDashboardLayout } from '../../layouts/dashboardLayout';
 import { createDashboardHeader } from '../dashboard/dashboardHeader';
 import createSidebar from '../dashboard/dashboardSideBar';
 import QuizWidget from '../widgets/quizWidget';
+import { eventBus } from '../../../core/EventBus';
 
 export type GameScreenProps = {
   day: number;
@@ -40,10 +41,16 @@ export default function renderGameScreen({
     const quiz = new QuizWidget(widgetContainer, gameId, onBack);
     quiz.start(skill, day);
   } else {
-    widgetContainer.innerHTML = `<h2 style="color:white">Game ${gameId} is under construction!</h2>`;
+    widgetContainer.innerHTML = `<h2 style="color:white">Game ${gameId} is under construction!</h2><p style="color:white">The button simulates the successful completion of the game.</p>`;
     const tempBackBtn = document.createElement('button');
-    tempBackBtn.textContent = '← Go Back';
-    tempBackBtn.onclick = onBack;
+    tempBackBtn.textContent = '← Finish the game';
+    tempBackBtn.addEventListener('click', () => {
+      eventBus.emit('TASK_FINISHED', {
+        gameId: gameId,
+        outcome: 'correct',
+        userAnswer: `Simulated answer for ${gameId}`,
+      });
+    });
     widgetContainer.append(tempBackBtn);
   }
 
