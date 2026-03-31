@@ -1,4 +1,4 @@
-import { eventBus } from '../core/EventBus';
+import { eventBus, type EventMap } from '../core/EventBus';
 import { store } from '../core/store';
 
 export class DayManager {
@@ -8,7 +8,7 @@ export class DayManager {
 
   private init() {
     eventBus.on('TASK_FINISHED', (payload) => {
-      this.handleTaskFinished(payload.gameId);
+      this.handleTaskFinished(payload);
     });
 
     eventBus.on('DAY_COMPLETED', (payload) => {
@@ -16,15 +16,18 @@ export class DayManager {
     });
   }
 
-  private handleTaskFinished(gameId: string) {
+  private handleTaskFinished(payload: EventMap['TASK_FINISHED']) {
+    if (payload.outcome !== 'correct') {
+      return;
+    }
     const state = store.getState();
     const currentTasks = state.game.completedTasksToday;
 
-    if (currentTasks.includes(gameId)) {
+    if (currentTasks.includes(payload.gameId)) {
       return;
     }
 
-    const updatedTasks = [...currentTasks, gameId];
+    const updatedTasks = [...currentTasks, payload.gameId];
 
     store.setState({
       game: {

@@ -89,6 +89,11 @@ export default class QuizWidget {
     const questionWrap = document.createElement('div');
     questionWrap.className = 'quiz-widget__wrap';
 
+    const quizRuls = document.createElement('p');
+    quizRuls.className = 'quiz-widget__rules';
+    quizRuls.textContent =
+      'To pass the quiz, you need to answer at least 4 out of 5 questions correctly.';
+
     const questionText = document.createElement('h3');
     questionText.className = 'quiz-widget__question';
     questionText.textContent = questionData.question;
@@ -108,7 +113,7 @@ export default class QuizWidget {
       optionsGrid.append(btn);
     });
 
-    questionWrap.append(questionText, optionsGrid);
+    questionWrap.append(quizRuls, questionText, optionsGrid);
     wrapper.append(header, questionWrap);
     this.container.append(wrapper);
   }
@@ -148,9 +153,7 @@ export default class QuizWidget {
   }
 
   private finishQuiz() {
-    eventBus.emit('TASK_CANCELLED', { gameId: this.gameId });
-
-    const isWin = this.correctAnswersCount >= 3;
+    const isWin = this.correctAnswersCount >= 4;
     const outcome = isWin ? 'correct' : 'wrong';
     const resultMessage = `${this.correctAnswersCount}/${this.questions.length} correct`;
 

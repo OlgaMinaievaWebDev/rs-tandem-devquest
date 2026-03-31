@@ -14,6 +14,15 @@
     padding-bottom: 12px;
     border-bottom: 1px solid $grey-400;
   }
+  &__rules {
+    background: rgba($grey-800, 0.5);
+    border: 1px dashed $grey-800;
+    border-radius: $radius-sm;
+    padding: $space-1 $space-2;
+    font-size: $text-sm;
+    color: $grey-400;
+    margin-bottom: $space-5;
+  }
   &__wrap {
     width: min(820px, 100%);
   }

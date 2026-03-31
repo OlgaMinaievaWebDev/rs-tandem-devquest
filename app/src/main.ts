@@ -134,10 +134,6 @@ const renderApp = (state: AppState) => {
       break;
 
     case 'game': {
-      const isCompleted = state.game.completedTasksToday.includes(state.route.gameId);
-      if (isCompleted) {
-        break;
-      }
       root.replaceChildren(
         renderGameScreen({
           day: state.route.day,
@@ -178,6 +174,22 @@ const handleRouterChange = async (route: Route) => {
     return;
   }
 
+  if (isLogged) {
+    const state = store.getState();
+    const actualCurrentDay = state.game.day;
+    const completedTasks = state.game.completedTasksToday;
+
+    if ((route.name === 'day' || route.name === 'game') && route.day !== actualCurrentDay) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+
+    if (route.name === 'game' && completedTasks.includes(route.gameId)) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+  }
+
   store.setState({ route });
 };
 
@@ -206,23 +218,29 @@ eventBus.on('TASK_FINISHED', (payload) => {
 
   if (payload.outcome === 'timeout') {
     alert(`Timeout!`);
-  } else {
+  } else if (payload.outcome === 'wrong') {
+    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
+  } else if (payload.outcome === 'correct') {
     alert(`You ${payload.outcome}! ${payload.userAnswer}`);
   }
 
   const state = store.getState();
-  if (state.game.completedTasksToday.length === 0) {
+  if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
     return;
   }
+
   const currentDay = state.game.day;
   router.navigate({ name: 'day', day: currentDay });
 });
+
 eventBus.on('TASK_STARTED', (payload) => {
   sidebarTimer.play(payload.duration, payload.gameId);
 });
+
 eventBus.on('TASK_CANCELLED', () => {
   sidebarTimer.stop();
 });
+
 eventBus.on('DAY_COMPLETED', () => {
   router.navigate({ name: 'dashboard' });
 });
