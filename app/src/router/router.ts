@@ -56,6 +56,14 @@ export default class Router {
           if (Number.isInteger(day) && day >= 1 && day <= 7) {
             return { name: 'day', day };
           }
+        } else if (rest.length === 3 && rest[1] === 'game') {
+          const day = Number(rest[0]);
+          const gameId = rest[2];
+          const validGameIds = ['bugfix', 'quiz', 'debug'];
+
+          if (Number.isInteger(day) && day >= 1 && day <= 7 && validGameIds.includes(gameId)) {
+            return { name: 'game', day, gameId };
+          }
         }
         return { name: 'not-found' };
       }
@@ -80,6 +88,8 @@ export default class Router {
         return '/done';
       case 'day':
         return `/day/${route.day}`;
+      case 'game':
+        return `/day/${route.day}/game/${route.gameId}`;
       case 'not-found':
         return '/404';
       default:

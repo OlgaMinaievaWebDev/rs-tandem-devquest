@@ -5,6 +5,7 @@ export type Route =
   | { name: 'auth' }
   | { name: 'dashboard' }
   | { name: 'day'; day: number }
+  | { name: 'game'; day: number; gameId: string }
   | { name: 'not-found' }
   | { name: 'done' };
 
@@ -22,6 +23,7 @@ export interface GameState {
   xp: number;
   selectedSkills: SkillType[];
   status: 'idle' | 'playing' | 'completed';
+  completedTasksToday: string[];
 }
 
 export interface AppState {
@@ -37,6 +39,7 @@ const defaultGameState: GameState = {
   xp: 0,
   selectedSkills: [],
   status: 'idle',
+  completedTasksToday: [],
 };
 
 export const initialState: AppState = {

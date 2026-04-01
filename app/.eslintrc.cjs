@@ -12,6 +12,8 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import'],
   extends: ['airbnb-base', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
+    'class-methods-use-this': 'off',
+
     // Practical for MVP:
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-explicit-any': 'off',

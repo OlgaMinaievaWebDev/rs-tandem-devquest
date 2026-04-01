@@ -1,13 +1,14 @@
 import { createButton } from '../../components/button';
 import '../../../styles/screens/day/dayMain.scss';
+import { eventBus } from '../../../core/EventBus';
 
 export type DayGameId = 'bugfix' | 'quiz' | 'debug';
 
 export type DayMainProps = {
   day: number;
+  completedTasks: string[];
   briefing?: string;
   aiMessage?: string;
-  onStartGame?: (gameId: DayGameId) => void;
   onBackToDashboard?: () => void;
 };
 
@@ -25,9 +26,9 @@ const DEFAULT_GAMES: GameButtonConfig[] = [
 
 export function createDayMain({
   day: _day,
+  completedTasks,
   briefing = 'Your team lead assigned you a task. Pick an approach and complete it.',
   aiMessage = 'AI Lead: Welcome to today’s task. Do it by the book.',
-  onStartGame,
   onBackToDashboard,
 }: DayMainProps): HTMLElement {
   const root = document.createElement('section');
@@ -59,9 +60,12 @@ export function createDayMain({
   for (let i = 0; i < DEFAULT_GAMES.length; i += 1) {
     const game = DEFAULT_GAMES[i];
 
+    const isCompleted = completedTasks.includes(game.id);
+
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'day-main__game';
+    btn.className = `day-main__game ${isCompleted ? 'day-main__game--completed' : ''}`;
+    btn.disabled = isCompleted;
     btn.setAttribute('aria-label', `${game.title}: ${game.subtitle}`);
 
     const btnTitle = document.createElement('div');
@@ -75,7 +79,7 @@ export function createDayMain({
     btn.append(btnTitle, btnSub);
 
     btn.addEventListener('click', () => {
-      onStartGame?.(game.id);
+      eventBus.emit('GAME_STARTED', { gameId: game.id, day: _day });
     });
 
     games.append(btn);

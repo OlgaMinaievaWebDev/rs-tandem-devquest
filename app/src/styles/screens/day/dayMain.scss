@@ -30,7 +30,10 @@
 
   padding: $space-4;
 
-  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
 
   &:hover {
     border-color: $color-success;
@@ -41,6 +44,10 @@
   &:focus-visible {
     outline: 2px solid $color-success;
     outline-offset: 2px;
+  }
+  &--completed {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 
@@ -75,7 +82,10 @@
 
   cursor: pointer;
 
-  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
 
   &:hover {
     border-color: $color-success;

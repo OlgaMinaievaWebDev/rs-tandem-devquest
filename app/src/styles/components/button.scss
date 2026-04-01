@@ -36,6 +36,17 @@
     line-height: 1;
   }
 
+  &--secondary {
+    color: $grey-400;
+    border-color: $grey-400;
+    font-size: $text-sm;
+
+    &:hover:not(:disabled) {
+      background: $grey-800;
+      color: $on-success;
+      box-shadow: 0 0 10px rgba($grey-800, 0.5);
+    }
+  }
   &--terminal {
     color: $color-success;
     border-color: $color-success;

@@ -1,5 +1,8 @@
 import { renderStatusBar } from '../../components/statusBar';
 import '../../../styles/screens/dashboard/dashboardSideBar.scss';
+import TimerWidget from '../../components/timerWidget';
+
+export const sidebarTimer = new TimerWidget();
 
 export type SidebarHandlers = {
   onCoffeeBreak?: () => void;
@@ -105,6 +108,6 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
     }),
   );
 
-  root.append(profile, bars, menu);
+  root.append(profile, bars, sidebarTimer.getElement(), menu);
   return root;
 }

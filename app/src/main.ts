@@ -10,6 +10,11 @@ import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import Loader from './ui/components/loader';
 import './styles/main.scss';
+import { eventBus } from './core/EventBus';
+import './game/DayManager';
+import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
+import renderGameScreen from './ui/screens/game/gameScreen';
+import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import { showError } from './ui/components/toast';
 import { getErrorMessage } from './utils/getErrorMessage';
 
@@ -110,6 +115,7 @@ const renderApp = (state: AppState) => {
     case 'dashboard':
       root.replaceChildren(
         renderDashboardScreen({
+          currentDay: store.getState().game.day,
           onSelectDay: handlers.onSelectDay,
           onSignOut: handlers.onSignOut,
         }),
@@ -120,11 +126,25 @@ const renderApp = (state: AppState) => {
       root.replaceChildren(
         renderDayScreen({
           day: state.route.day,
+          completedTasks: state.game.completedTasksToday,
           onBackToDashboard: handlers.onBackToDashboard,
           onSignOut: handlers.onSignOut,
         }),
       );
       break;
+
+    case 'game': {
+      root.replaceChildren(
+        renderGameScreen({
+          day: state.route.day,
+          gameId: state.route.gameId,
+          skill: state.game.selectedSkills[0] || 'Frontend',
+          onBack: () => router.navigate({ name: 'day', day: store.getState().game.day }),
+          onSignOut: handlers.onSignOut,
+        }),
+      );
+      break;
+    }
 
     case 'not-found':
       root.replaceChildren(
@@ -154,14 +174,85 @@ const handleRouterChange = async (route: Route) => {
     return;
   }
 
+  if (route.name !== 'game') {
+    sidebarTimer.stop();
+  }
+
+  if (isLogged) {
+    const state = store.getState();
+    const actualCurrentDay = state.game.day;
+    const completedTasks = state.game.completedTasksToday;
+
+    if ((route.name === 'day' || route.name === 'game') && route.day !== actualCurrentDay) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+
+    if (route.name === 'game' && completedTasks.includes(route.gameId)) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+  }
+
   store.setState({ route });
 };
 
 router = new Router(handleRouterChange);
 
+let currentRouteString: string | null = null;
+
 store.subscribe((state) => {
-  renderApp(state);
+  const newRouteString = JSON.stringify(state.route);
+
+  if (currentRouteString !== newRouteString) {
+    currentRouteString = newRouteString;
+    renderApp(state);
+  }
 });
 
 router.init();
 watchAuth();
+
+eventBus.on('GAME_STARTED', (payload) => {
+  router.navigate({ name: 'game', day: payload.day, gameId: payload.gameId });
+});
+
+eventBus.on('TASK_FINISHED', (payload) => {
+  sidebarTimer.stop();
+
+  const state = store.getState();
+  if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
+    return;
+  }
+
+  if (payload.outcome === 'timeout') {
+    alert(`Timeout!`);
+  } else if (payload.outcome === 'wrong') {
+    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
+  } else if (payload.outcome === 'correct') {
+    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
+  }
+
+  const currentDay = state.game.day;
+  router.navigate({ name: 'day', day: currentDay });
+});
+
+eventBus.on('TASK_STARTED', (payload) => {
+  sidebarTimer.play(payload.duration, payload.gameId);
+});
+
+eventBus.on('TASK_CANCELLED', () => {
+  sidebarTimer.stop();
+});
+
+eventBus.on('DAY_COMPLETED', () => {
+  const game = store.getState().game;
+  root.append(
+    createDayResultScreen({
+      day: game.day - 1,
+      stress: game.stress,
+      xpGained: game.xp,
+      onNextDay: () => router.navigate({ name: 'day', day: game.day }),
+    }),
+  );
+});

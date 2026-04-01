@@ -7,12 +7,14 @@ import '../../../styles/screens/day/dayScreen.scss';
 
 export type DayScreenProps = {
   day: number;
+  completedTasks: string[];
   onBackToDashboard: () => void;
   onSignOut: () => void;
 };
 
 export default function renderDayScreen({
   day,
+  completedTasks,
   onBackToDashboard,
   onSignOut,
 }: DayScreenProps): HTMLElement {
@@ -34,7 +36,7 @@ export default function renderDayScreen({
   layout.main.replaceChildren(
     createDayMain({
       day,
-      onStartGame: (_gameId) => {},
+      completedTasks,
       onBackToDashboard,
     }),
   );
