@@ -11,7 +11,7 @@ export type GamePlayScreenProps = {
   gameId: 'bugfix' | 'quiz' | 'debug';
 };
 
-const createTypingIndicator = () => {
+const createTypingIndicator = (): HTMLElement => {
   const typingIndicator = document.createElement('div');
   typingIndicator.className = 'message message--boss typing-indicator';
   typingIndicator.style.display = 'none';
@@ -185,6 +185,8 @@ export function createGamePlayScreen({ day, gameId }: GamePlayScreenProps): HTML
   };
 
   const sendMessage = (): void => {
+    if (isTyping) return;
+
     const text = chatTextArea.value.trim();
     if (!text) return;
 
