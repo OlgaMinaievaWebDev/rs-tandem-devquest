@@ -10,7 +10,6 @@ import renderNotFoundScreen from './ui/screens/notFoundScreen';
 import { getSession, onAuthStateChange, signIn, signUp, signOut } from './services/auth';
 import Loader from './ui/components/loader';
 import './styles/main.scss';
-import { createGamePlayScreen } from './ui/screens/gamePlayScreen';
 import { eventBus } from './core/EventBus';
 import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
@@ -18,6 +17,7 @@ import renderGameScreen from './ui/screens/game/gameScreen';
 import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import { showError } from './ui/components/toast';
 import { getErrorMessage } from './utils/getErrorMessage';
+// import { createGamePlayScreen } from './ui/screens/game/gamePlayWidget';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -259,15 +259,15 @@ eventBus.on('DAY_COMPLETED', () => {
 });
 
 // Testing
-setTimeout(() => {
-  const dashboardMain = document.querySelector('.dashboard__main');
-  const dashboardMainRemove = document.querySelector('.dashboard-main');
-  dashboardMainRemove?.remove();
+// setTimeout(() => {
+//   const dashboardMain = document.querySelector('.dashboard__main');
+//   const dashboardMainRemove = document.querySelector('.dashboard-main');
+//   dashboardMainRemove?.remove();
 
-  dashboardMain?.append(
-    createGamePlayScreen({
-      day: 1,
-      gameId: 'bugfix',
-    }),
-  );
-}, 500);
+//   dashboardMain?.append(
+//     createGamePlayScreen({
+//       day: 1,
+//       gameId: 'bugfix',
+//     }),
+//   );
+// }, 500);
