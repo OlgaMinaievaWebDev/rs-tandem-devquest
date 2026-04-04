@@ -12,6 +12,14 @@ export interface ChatEvaluation {
   feedback: string;
 }
 
+export interface BossResponse {
+  title?: string;
+  seniorLeadResponse: string; // Основной текст от босса
+  codeExample?: string; // Код, если есть
+  codeExplanation?: string; // Объяснение кода
+  feedback?: string;
+}
+
 export class AIService {
   private static decodeHTML(text: string): string {
     const textArea = document.createElement('textarea');
@@ -32,6 +40,64 @@ export class AIService {
     }));
   }
 
+  public static async getBossResponse(
+    gameId: 'bugfix' | 'debug',
+    day: number,
+    userMessage: string,
+  ): Promise<BossResponse> {
+    const prompt = `You are a strict but professional Senior Frontend Developer and AI Team Lead at DevQuest with 10+ years of experience.
+    
+    You specialize ONLY in frontend: JavaScript, TypeScript, React, HTML, CSS, and modern frontend practices.
+
+    Today is Day ${day}. The current task is: ${gameId === 'bugfix' ? 'Fix the Bug' : 'Debug Challenge'}.
+
+    Junior's message: "${userMessage}"
+
+    Return your response **strictly as a valid JSON object** with no extra text:
+
+    {
+      "seniorLeadResponse": "your main message to the junior (be direct and professional)",
+      "codeExample": "improved code example if applicable, or empty string",
+      "codeExplanation": "brief explanation of the code or what was wrong, or empty string",
+      "feedback": "short feedback on their approach"
+    }
+
+    Rules:
+    - Stay strictly within frontend development.
+    - Use modern, clean frontend practices.
+    - Never be overly rude or toxic.
+    - Always provide value and direction.
+    - Return only valid JSON.`;
+
+    try {
+      const raw = await this.askAI(prompt);
+
+      if (typeof raw === 'string') {
+        return {
+          seniorLeadResponse: raw,
+          codeExample: '',
+          codeExplanation: '',
+          feedback: '',
+        };
+      }
+
+      return {
+        seniorLeadResponse: raw?.seniorLeadResponse || 'I expected a cleaner frontend solution.',
+        codeExample: raw?.codeExample || '',
+        codeExplanation: raw?.codeExplanation || '',
+        feedback: raw?.feedback || '',
+      };
+    } catch (error) {
+      console.error('getBossResponse error:', error);
+      return {
+        seniorLeadResponse: "I didn't catch that. Please explain your frontend solution again.",
+        codeExample: '',
+        codeExplanation: '',
+        feedback: '',
+      };
+    }
+  }
+
   // 2. ПРОВЕРКА ОТВЕТА В ЧАТЕ (Вызывается при каждом ответе пользователя)
   public static async evaluateChatAnswer(
     skill: string,
@@ -39,8 +105,8 @@ export class AIService {
     userAnswer: string,
   ): Promise<ChatEvaluation> {
     // Здесь промпт динамический! Он включает ответ реального игрока.
-    const prompt = `Ты строгий, но справедливый Senior ${skill} Developer. 
-    Твой джуниор ответил на вопрос: "${question}". 
+    const prompt = `Ты строгий, но справедливый Senior ${skill} Developer.
+    Твой джуниор ответил на вопрос: "${question}".
     Его ответ: "${userAnswer}".
     Оцени этот ответ. Верни СТРОГО JSON: { "isCorrect": true/false, "feedback": "Твой короткий комментарий и совет" }. Никакого лишнего текста.`;
 

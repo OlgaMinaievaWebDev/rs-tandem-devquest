@@ -6,6 +6,7 @@ import { store } from '../../../core/store';
 import { afterRender, scrollToBottom, shouldScrollToBottom } from '../../../utils/scrollUtils';
 import { renderMessageContent } from '../../../utils/renderMessage';
 import { eventBus } from '../../../core/EventBus';
+import { AIService } from '../../../services/aiService';
 
 export type GamePlayWidgetProps = {
   day: number;
@@ -45,12 +46,34 @@ export default class GamePlayWidget {
       duration: 180,
     });
 
-    setTimeout(() => {
+    this.sendWelcomeMessage();
+  }
+
+  private async sendWelcomeMessage() {
+    this.showTypingIndicator();
+
+    try {
+      const bossData = await AIService.getBossResponse(
+        this.gameId as 'bugfix' | 'debug',
+        this.day,
+        "Hello, I'm ready for today's task.",
+      );
+
+      let welcomeText = bossData.seniorLeadResponse;
+
+      if (bossData.codeExample) {
+        welcomeText += `\n\n\`\`\`javascript\n${bossData.codeExample}\n\`\`\``;
+      }
+
+      this.addMessage('boss', welcomeText);
+    } catch (e) {
       this.addMessage(
         'boss',
-        `Welcome to Day ${this.day} — ${this.getGameTitle()}.\nLet's begin. What is your first step?`,
+        `Day ${this.day} — ${this.getGameTitle()}. I'm waiting for your plan.`,
       );
-    }, 400);
+    } finally {
+      this.hideTypingIndicator();
+    }
   }
 
   private renderChat(): void {
@@ -228,7 +251,7 @@ export default class GamePlayWidget {
     this.chatTextArea.focus();
   };
 
-  sendMessage = (): void => {
+  sendMessage = async (): Promise<void> => {
     if (this.isTyping) return;
 
     const text = this.chatTextArea.value.trim();
@@ -239,90 +262,38 @@ export default class GamePlayWidget {
 
     this.showTypingIndicator();
 
-    // Fake AI response for tests
-    setTimeout(() => {
+    try {
+      const bossData = await AIService.getBossResponse(
+        this.gameId as 'bugfix' | 'debug',
+        this.day,
+        text,
+      );
+
       this.hideTypingIndicator();
 
-      const responses = [
-        `Good start! But we need to handle the edge case when the array is empty.
+      let displayText = bossData.seniorLeadResponse;
 
-    \`\`\`javascript
-    function fixArrayBug(items) {
-      if (!items || items.length === 0) {
-        console.warn('Received empty array');
-        return [];
+      if (bossData.codeExample) {
+        displayText += `\n\n\`\`\`javascript\n${bossData.codeExample}\n\`\`\``;
       }
 
-      return items.map(item => {
-        if (item.status === 'broken') {
-          item.status = 'fixed';
-          item.fixedAt = new Date().toISOString();
-        }
-        return item;
-      });
-    }
-    \`\`\``,
-
-        `I see an issue with the error handling. Let's improve it:
-
-    \`\`\`typescript
-    function processItems(items: any[]): any[] {
-      if (!Array.isArray(items)) {
-        throw new Error('Input must be an array');
+      if (bossData.codeExplanation) {
+        displayText += `\n\n${bossData.codeExplanation}`;
       }
 
-      return items.map(item => {
-        if (item.status === 'broken') {
-          item.status = 'fixed';
-        }
-        return item;
-      });
+      if (bossData.feedback) {
+        displayText += `\n\n**Feedback:** ${bossData.feedback}`;
+      }
+
+      this.addMessage('boss', displayText);
+    } catch (error) {
+      this.hideTypingIndicator();
+      this.addMessage('boss', "Sorry, I didn't get that. Can you explain your solution again?");
     }
-    \`\`\``,
-
-        `Performance can be improved by filtering broken items first:
-
-    \`\`\`javascript
-    const optimizedFix = (items) =>
-      items?.filter(item => item.status === 'broken')
-           .map(item => ({ ...item, status: 'fixed', fixedAt: new Date().toISOString() })) || [];
-    \`\`\``,
-
-        `Here's a cleaner functional approach:
-
-    \`\`\`javascript
-    function fixBug(data) {
-      return {
-        ...data,
-        status: data.status === 'broken' ? 'fixed' : data.status,
-        lastUpdated: new Date().toISOString(),
-      };
-    }
-    \`\`\``,
-
-        `Remember to handle nested structures carefully:
-
-    \`\`\`javascript
-    function deepFix(items) {
-      return items.map(item => {
-        if (item.status === 'broken') {
-          item.status = 'fixed';
-        }
-        if (item.children) {
-          item.children = deepFix(item.children);
-        }
-        return item;
-      });
-    }
-    \`\`\``,
-      ];
-
-      this.addMessage('boss', responses[Math.floor(Math.random() * responses.length)]);
-    }, 3000);
   };
 
   initEventListeners = () => {
-    this.chatSendBtn.addEventListener('click', this.sendMessage);
+    this.chatSendBtn.addEventListener('click', () => this.sendMessage());
 
     this.chatTextArea.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
