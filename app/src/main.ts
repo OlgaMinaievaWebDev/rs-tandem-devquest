@@ -246,13 +246,13 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  const game = store.getState().game;
+  const { day, stress, xp } = store.getState().game;
   root.append(
     createDayResultScreen({
-      day: game.day - 1,
-      stress: game.stress,
-      xpGained: game.xp,
-      onNextDay: () => router.navigate({ name: 'day', day: game.day }),
+      day: day - 1,
+      stress,
+      xpGained: xp,
+      onNextDay: () => router.navigate({ name: 'day', day }),
     }),
   );
 });

@@ -26,7 +26,7 @@ module.exports = {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'no-param-reassign': ['error', { props: false }],
   },
-  ignorePatterns: ['dist', 'node_modules'],
+  ignorePatterns: ['dist', 'node_modules', 'supabase'],
 
   overrides: [
     {
