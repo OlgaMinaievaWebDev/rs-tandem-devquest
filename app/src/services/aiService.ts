@@ -46,7 +46,7 @@ export class AIService {
     userMessage: string,
   ): Promise<BossResponse> {
     const prompt = `You are a strict but professional Senior Frontend Developer and AI Team Lead at DevQuest with 10+ years of experience.
-    
+
     You specialize ONLY in frontend: JavaScript, TypeScript, React, HTML, CSS, and modern frontend practices.
 
     Today is Day ${day}. The current task is: ${gameId === 'bugfix' ? 'Fix the Bug' : 'Debug Challenge'}.
@@ -61,6 +61,15 @@ export class AIService {
       "codeExplanation": "brief explanation of the code or what was wrong, or empty string",
       "feedback": "short feedback on their approach"
     }
+
+    Requirements for the bug:
+    - Must be a realistic frontend bug (JS, DOM manipulation, state, events, rendering, etc.)
+    - The code must look like real production code
+    - The bug should be findable but not too obvious
+    - Do NOT include the correct solution in the code or comments
+    - Make sure "buggyCode" contains actual code with syntax highlighting in mind (use proper indentation)
+
+    Return ONLY valid JSON. No explanations, no markdown.
 
     Rules:
     - Stay strictly within frontend development.

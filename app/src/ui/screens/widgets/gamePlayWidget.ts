@@ -59,6 +59,8 @@ export default class GamePlayWidget {
         "Hello, I'm ready for today's task.",
       );
 
+      console.log(bossData);
+
       let welcomeText = bossData.seniorLeadResponse;
 
       if (bossData.codeExample) {
