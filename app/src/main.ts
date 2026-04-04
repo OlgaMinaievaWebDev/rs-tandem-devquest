@@ -22,6 +22,7 @@ import {
   loadFromLocalBackup,
   saveGameStateToDB,
   clearLocalBackup,
+  resetGameProgress,
 } from './services/dbService';
 
 const root = document.querySelector<HTMLDivElement>('#app');
@@ -344,4 +345,24 @@ eventBus.on('DAY_COMPLETED', () => {
       onNextDay: () => router.navigate({ name: 'day', day }),
     }),
   );
+});
+
+eventBus.on('RESTART_GAME', async () => {
+  const state = store.getState();
+  if (!state.user) return;
+
+  spinner.show('Resetting world...');
+  try {
+    await resetGameProgress(state.user.id);
+
+    store.setState({
+      game: { ...initialState.game },
+    });
+
+    router.navigate({ name: 'dashboard' });
+  } catch (err) {
+    showError(getErrorMessage(err, 'Failed to restart game'));
+  } finally {
+    spinner.hide();
+  }
 });

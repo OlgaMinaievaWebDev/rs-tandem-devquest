@@ -1,5 +1,5 @@
 import supabase from '../lib/supabase';
-import type { GameState } from '../core/state';
+import { type GameState, initialState } from '../core/state';
 
 const LOCAL_KEY = 'devquest_backup_';
 
@@ -72,4 +72,25 @@ export async function loadGameStateFromDB(userId: string) {
   }
 
   return null;
+}
+
+export async function resetGameProgress(userId: string) {
+  const fresh = initialState.game;
+
+  clearLocalBackup(userId);
+
+  const { error } = await supabase
+    .from('player_state')
+    .update({
+      day: fresh.day,
+      health: fresh.health,
+      stress: fresh.stress,
+      xp: fresh.xp,
+      selected_skills: fresh.selectedSkills,
+      completed_tasks_today: fresh.completedTasksToday,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) throw error;
 }

@@ -5,6 +5,7 @@ export type EventMap = {
   TASK_FINISHED: { gameId: string; outcome: 'correct' | 'wrong' | 'timeout'; userAnswer: string };
   DAY_COMPLETED: { day: number };
   STRESS_CHANGED: { amount: number };
+  RESTART_GAME: undefined;
 };
 
 type EventName = keyof EventMap;
@@ -24,8 +25,13 @@ class EventBus {
     return () => this.off(event, callback);
   }
 
-  public emit<K extends EventName>(event: K, payload: EventMap[K]): void {
+  public emit<K extends EventName>(
+    event: K,
+    ...args: EventMap[K] extends undefined ? [payload?: undefined] : [payload: EventMap[K]]
+  ): void {
     if (!this.listeners[event]) return;
+
+    const payload = args[0] as EventMap[K];
 
     this.listeners[event]!.forEach((callback) => callback(payload));
   }
