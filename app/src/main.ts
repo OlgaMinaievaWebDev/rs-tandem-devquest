@@ -1,6 +1,6 @@
 import Router from './router/router';
 import { store } from './core/store';
-import type { AppState, Route } from './core/state';
+import { type AppState, type GameState, type Route, initialState } from './core/state';
 
 import { renderStartScreen } from './ui/screens/startScreen';
 import { renderAuthScreen } from './ui/screens/authScreen';
@@ -17,6 +17,12 @@ import renderGameScreen from './ui/screens/game/gameScreen';
 import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import { showError } from './ui/components/toast';
 import { getErrorMessage } from './utils/getErrorMessage';
+import {
+  loadGameStateFromDB,
+  loadFromLocalBackup,
+  saveGameStateToDB,
+  clearLocalBackup,
+} from './services/dbService';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -26,14 +32,97 @@ document.body.appendChild(spinner.getElement());
 
 let router: Router;
 
+const handleRouterChange = async (route: Route) => {
+  const session = await getSession();
+  const isLogged = !!session?.user;
+  const publicRoutes = ['start', 'auth'];
+
+  if (!isLogged && !publicRoutes.includes(route.name)) {
+    router.navigate({ name: 'auth' });
+    return;
+  }
+
+  if (isLogged && route.name === 'auth') {
+    router.navigate({ name: 'dashboard' });
+    return;
+  }
+
+  if (route.name !== 'game') {
+    sidebarTimer.stop();
+  }
+
+  const state = store.getState();
+  if (isLogged && !state.isReady) {
+    store.setState({ route });
+    return;
+  }
+
+  if (isLogged) {
+    const actualCurrentDay = state.game.day;
+    const completedTasks = state.game.completedTasksToday;
+
+    if ((route.name === 'day' || route.name === 'game') && route.day !== actualCurrentDay) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+
+    if (route.name === 'game' && completedTasks.includes(route.gameId)) {
+      router.navigate({ name: 'day', day: actualCurrentDay });
+      return;
+    }
+  }
+
+  store.setState({ route });
+};
+
+async function initializeGameProgress(userId: string) {
+  spinner.show('Restoring your progress...');
+  try {
+    const dbData = await loadGameStateFromDB(userId);
+    const localBackup = loadFromLocalBackup(userId);
+
+    let finalGameState: Partial<GameState> = {};
+
+    if (dbData && localBackup) {
+      if (localBackup.timestamp > dbData.updatedAt) {
+        finalGameState = localBackup.data;
+        saveGameStateToDB(userId, finalGameState as GameState).catch((err) =>
+          showError(getErrorMessage(err, 'Error saving progress')),
+        );
+      } else {
+        finalGameState = dbData.gameState;
+      }
+    } else if (dbData) {
+      finalGameState = dbData.gameState;
+    } else if (localBackup) {
+      finalGameState = localBackup.data;
+    }
+
+    store.setState({
+      game: { ...store.getState().game, ...finalGameState },
+    });
+  } catch (err) {
+    showError(getErrorMessage(err, 'Failed to restore progress'));
+  } finally {
+    store.setState({
+      isReady: true,
+    });
+    handleRouterChange(store.getState().route);
+    spinner.hide();
+  }
+}
+
 const watchAuth = () => {
-  onAuthStateChange((event, session) => {
+  onAuthStateChange(async (event, session) => {
     if (
-      event === 'INITIAL_SESSION' ||
-      event === 'SIGNED_IN' ||
-      event === 'TOKEN_REFRESHED' ||
-      event === 'USER_UPDATED'
+      session?.user?.id &&
+      store.getState().user?.id === session?.user?.id &&
+      (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')
     ) {
+      return;
+    }
+
+    if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
       if (session?.user) {
         store.setState({
           user: {
@@ -44,13 +133,32 @@ const watchAuth = () => {
           },
         });
 
+        await initializeGameProgress(session.user.id);
+
         const currentRoute = store.getState().route.name;
         if (currentRoute === 'auth') {
           router.navigate({ name: 'dashboard' });
         }
+      } else {
+        store.setState({ isReady: true });
+      }
+    } else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+      if (session?.user) {
+        store.setState({
+          user: {
+            ...store.getState().user!,
+            name: session.user.user_metadata?.name,
+            avatarId: session.user.user_metadata?.avatar,
+          },
+        });
       }
     } else if (event === 'SIGNED_OUT') {
-      store.setState({ user: null });
+      const currentState = store.getState();
+      if (currentState.user) {
+        clearLocalBackup(currentState.user.id);
+      }
+
+      store.setState({ user: null, game: initialState.game, isReady: true });
       router.navigate({ name: 'auth' });
     }
   });
@@ -64,9 +172,8 @@ const handlers = {
       spinner.show('Logging in...');
       await signIn(email, pass);
     } catch (error) {
-      showError(getErrorMessage(error, 'Login failed'));
-    } finally {
       spinner.hide();
+      showError(getErrorMessage(error, 'Login failed'));
     }
   },
 
@@ -75,9 +182,8 @@ const handlers = {
       spinner.show('Creating account...');
       await signUp(email, pass, name, avatar);
     } catch (error) {
-      showError(getErrorMessage(error, 'Login failed'));
-    } finally {
       spinner.hide();
+      showError(getErrorMessage(error, 'Login failed'));
     }
   },
 
@@ -86,7 +192,7 @@ const handlers = {
       spinner.show('Logging out...');
       await signOut();
     } catch (error) {
-      showError(getErrorMessage(error, 'Login failed'));
+      showError(getErrorMessage(error, 'Logout failed'));
     } finally {
       spinner.hide();
     }
@@ -98,6 +204,10 @@ const handlers = {
 };
 
 const renderApp = (state: AppState) => {
+  if (!state.isReady) {
+    return;
+  }
+
   switch (state.route.name) {
     case 'start':
       root.replaceChildren(renderStartScreen({ onStart: handlers.onStart }));
@@ -159,53 +269,18 @@ const renderApp = (state: AppState) => {
   }
 };
 
-const handleRouterChange = async (route: Route) => {
-  const session = await getSession();
-  const isLogged = !!session?.user;
-  const publicRoutes = ['start', 'auth'];
-
-  if (!isLogged && !publicRoutes.includes(route.name)) {
-    router.navigate({ name: 'auth' });
-    return;
-  }
-
-  if (isLogged && route.name === 'auth') {
-    router.navigate({ name: 'dashboard' });
-    return;
-  }
-
-  if (route.name !== 'game') {
-    sidebarTimer.stop();
-  }
-
-  if (isLogged) {
-    const state = store.getState();
-    const actualCurrentDay = state.game.day;
-    const completedTasks = state.game.completedTasksToday;
-
-    if ((route.name === 'day' || route.name === 'game') && route.day !== actualCurrentDay) {
-      router.navigate({ name: 'day', day: actualCurrentDay });
-      return;
-    }
-
-    if (route.name === 'game' && completedTasks.includes(route.gameId)) {
-      router.navigate({ name: 'day', day: actualCurrentDay });
-      return;
-    }
-  }
-
-  store.setState({ route });
-};
-
 router = new Router(handleRouterChange);
 
 let currentRouteString: string | null = null;
+let currentIsReady: boolean = false;
 
 store.subscribe((state) => {
   const newRouteString = JSON.stringify(state.route);
+  const isReadyChanged = currentIsReady !== state.isReady;
 
-  if (currentRouteString !== newRouteString) {
+  if (currentRouteString !== newRouteString || isReadyChanged) {
     currentRouteString = newRouteString;
+    currentIsReady = state.isReady;
     renderApp(state);
   }
 });
@@ -233,6 +308,12 @@ eventBus.on('TASK_FINISHED', (payload) => {
     alert(`You ${payload.outcome}! ${payload.userAnswer}`);
   }
 
+  if (state.user) {
+    saveGameStateToDB(state.user.id, state.game).catch((err) =>
+      showError(getErrorMessage(err, 'Error saving progress')),
+    );
+  }
+
   const currentDay = state.game.day;
   router.navigate({ name: 'day', day: currentDay });
 });
@@ -246,7 +327,15 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  const { day, stress, xp } = store.getState().game;
+  const state = store.getState();
+  const { day, stress, xp } = state.game;
+
+  if (state.user) {
+    saveGameStateToDB(state.user.id, state.game).catch((err) =>
+      showError(getErrorMessage(err, 'Error saving progress')),
+    );
+  }
+
   root.append(
     createDayResultScreen({
       day: day - 1,
