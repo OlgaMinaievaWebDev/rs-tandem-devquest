@@ -16,7 +16,10 @@ import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
 import { showError } from './ui/components/toast';
 import { getErrorMessage } from './utils/getErrorMessage';
-import { createResultDialog } from './ui/screens/widgets/resultModalWidget';
+import {
+  ResultDialogWidget,
+  type ResultDialogProps,
+} from './ui/screens/widgets/resultDialogWidget';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -221,31 +224,14 @@ eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
 
   const state = store.getState();
-
-  // if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
-  //   return;
-  // }
-
-  // if (payload.outcome === 'timeout') {
-  //   alert(`Timeout!`);
-  // } else if (payload.outcome === 'wrong') {
-  //   alert(`You ${payload.outcome}! ${payload.userAnswer}`);
-  // } else if (payload.outcome === 'correct') {
-  //   alert(`You ${payload.outcome}! ${payload.userAnswer}`);
-  // }
-
-  // const currentDay = state.game.day;
-  // router.navigate({ name: 'day', day: currentDay });
-
   const game = state.game;
 
-  let dialogProps: Parameters<typeof createResultDialog>[0] | null = null;
+  let dialogProps: ResultDialogProps | null = null;
 
   if (payload.outcome === 'correct') {
     const completedCount = game.completedTasksToday.length;
 
     if (completedCount === 1) {
-      // Scenario 1: Single Task Completed
       dialogProps = {
         type: 'task-partial-success',
         day: game.day,
@@ -261,7 +247,6 @@ eventBus.on('TASK_FINISHED', (payload) => {
       return;
     }
   } else {
-
     const failMsg =
       payload.outcome === 'timeout'
         ? "Time's up! You need to be faster under pressure."
@@ -281,7 +266,8 @@ eventBus.on('TASK_FINISHED', (payload) => {
   }
 
   if (dialogProps) {
-    root.append(createResultDialog(dialogProps));
+    const dialog = new ResultDialogWidget(root, dialogProps);
+    dialog.show();
   }
 });
 
@@ -294,40 +280,10 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  // const { day, stress, xp } = store.getState().game;
-  // root.append(
-  //   createResultDialog({
-  //     day: day - 1,
-  //     stress,
-  //     xpGained: xp,
-  //     onNextDay: () => router.navigate({ name: 'day', day }),
-  //   }),
-  // );
-
   const state = store.getState();
   const game = state.game;
 
-  root.append(
-    createResultDialog({
-      type: 'day-complete',
-      day: game.day - 1,
-      stats: {
-        stress: { value: `${game.stress}%` },
-        authority: { value: '3', delta: '+1' },
-        xp: { value: `${game.xp}`, delta: '+50' },
-      },
-      onAction: () => {
-        router.navigate({ name: 'day', day: game.day });
-      },
-    }),
-  );
-});
-
-setTimeout(() => {
-  const state = store.getState();
-  const game = state.game;
-
-  const dialog = createResultDialog({
+  const dialog = new ResultDialogWidget(root, {
     type: 'day-complete',
     day: game.day - 1,
     stats: {
@@ -338,8 +294,27 @@ setTimeout(() => {
     onAction: () => {
       router.navigate({ name: 'day', day: game.day });
     },
-  }) as HTMLDialogElement;
+  });
 
-  root.append(dialog);
-  dialog.showModal();
+  dialog.show();
+});
+
+setTimeout(() => {
+  const state = store.getState();
+  const game = state.game;
+
+  const dialog = new ResultDialogWidget(root, {
+    type: 'day-complete',
+    day: game.day - 1,
+    stats: {
+      stress: { value: `${game.stress}%` },
+      authority: { value: '3', delta: '+1' },
+      xp: { value: `${game.xp}`, delta: '+50' },
+    },
+    onAction: () => {
+      router.navigate({ name: 'day', day: game.day });
+    },
+  });
+
+  dialog.show();
 }, 300);

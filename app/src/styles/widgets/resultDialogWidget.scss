@@ -1,7 +1,7 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/animation' as *;
 
-.result-screen {
+.result-dialog {
   position: fixed;
   inset: 0;
   z-index: 10000;
@@ -84,28 +84,30 @@
   }
 }
 
-.result-screen[open] {
+.result-dialog[open] {
   display: grid;
 }
 
-.result-screen--unsuccessfully {
-  // your red / warning theme here
-  .result-screen__card {
+.result-dialog--unsuccessfully {
+  .result-dialog__card {
     border-color: #f33;
     background: rgba(30, 0, 0, 0.9);
   }
-  .result-screen__title {
+
+  .result-dialog__title {
     color: #ff6666;
   }
 }
 
-.result-screen__delta--positive {
+.result-dialog__delta--positive {
   color: #0f0;
 }
-.result-screen__delta--negative {
+
+.result-dialog__delta--negative {
   color: #f66;
 }
-.result-screen__message {
+
+.result-dialog__message {
   margin: 1rem 0;
   font-style: italic;
   color: #ccc;
