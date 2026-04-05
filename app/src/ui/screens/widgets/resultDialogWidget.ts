@@ -1,5 +1,5 @@
 import { createButton } from '../../components/button';
-import '../../../styles/widgets/resultModalWidget.scss';
+import '../../../styles/widgets/resultDialogWidget.scss';
 
 export type ResultType =
   | 'task-partial-success'
@@ -51,12 +51,17 @@ export class ResultDialogWidget {
 
   show() {
     this.render();
-    this.container.append(this.dialog);
+
+    if (!this.dialog.parentElement) {
+      this.container.append(this.dialog);
+    }
+
     this.dialog.showModal();
   }
 
   hide() {
     this.dialog.close();
+    this.dialog.remove();
   }
 
   render() {
@@ -72,7 +77,7 @@ export class ResultDialogWidget {
     let titleText;
 
     if (typeof day === 'number') {
-      titleText = title || this.getTitleText(type, day);
+      titleText = title || this.getTitleText(type, day ?? 1);
     }
 
     const titleEl = document.createElement('h2');
@@ -115,7 +120,8 @@ export class ResultDialogWidget {
     });
 
     card.append(titleEl, messageEl, body, actionBtn);
-    this.dialog.appendChild(card);
+
+    this.dialog.replaceChildren(card);
 
     return this.dialog;
   }
@@ -147,24 +153,22 @@ export class ResultDialogWidget {
   getBtnLabel(type: ResultType) {
     let btnLabel;
 
-    if (!btnLabel) {
-      switch (type) {
-        case 'task-partial-success':
-          btnLabel = 'Choose Next Task';
-          break;
-        case 'day-complete':
-          btnLabel = 'Start Next Day';
-          break;
-        case 'task-failed':
-          btnLabel = 'Try Another Task';
-          break;
-        case 'game-over-defeat':
-          btnLabel = 'Restart Game';
-          break;
-        case 'game-over-victory':
-          btnLabel = 'Play Again';
-          break;
-      }
+    switch (type) {
+      case 'task-partial-success':
+        btnLabel = 'Choose Next Task';
+        break;
+      case 'day-complete':
+        btnLabel = 'Start Next Day';
+        break;
+      case 'task-failed':
+        btnLabel = 'Try Another Task';
+        break;
+      case 'game-over-defeat':
+        btnLabel = 'Restart Game';
+        break;
+      case 'game-over-victory':
+        btnLabel = 'Play Again';
+        break;
     }
 
     return btnLabel;

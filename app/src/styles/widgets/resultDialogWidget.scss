@@ -6,8 +6,7 @@
   inset: 0;
   z-index: 10000;
 
-  display: grid;
-  place-items: center;
+  display: none;
 
   padding: 0;
   border: none;
@@ -25,7 +24,7 @@
   }
 
   &__card {
-    width: min(540px, 100%);
+    width: min(580px, 100%);
     max-height: 90vh;
     overflow-y: auto;
 
@@ -86,6 +85,7 @@
 
 .result-dialog[open] {
   display: grid;
+  place-items: center;
 }
 
 .result-dialog--unsuccessfully {
