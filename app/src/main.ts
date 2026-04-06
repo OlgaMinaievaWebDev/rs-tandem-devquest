@@ -33,9 +33,32 @@ document.body.appendChild(spinner.getElement());
 
 let router: Router;
 
+const validateRouteAccess = (state: AppState, targetRoute: Route): Route => {
+  if (targetRoute.name !== 'day' && targetRoute.name !== 'game') {
+    return targetRoute;
+  }
+
+  const actualDay = state.game.day;
+  const completedTasks = state.game.completedTasksToday;
+
+  if (targetRoute.day !== actualDay) {
+    return { name: 'day', day: actualDay };
+  }
+  if (targetRoute.name === 'game' && completedTasks.includes(targetRoute.gameId)) {
+    return { name: 'day', day: actualDay };
+  }
+  return targetRoute;
+};
+
 const handleRouterChange = async (route: Route) => {
-  const session = await getSession();
-  const isLogged = !!session?.user;
+  const state = store.getState();
+
+  if (!state.isReady) {
+    store.setState({ route });
+    return;
+  }
+
+  const isLogged = !!state.user;
   const publicRoutes = ['start', 'auth'];
 
   if (!isLogged && !publicRoutes.includes(route.name)) {
@@ -52,23 +75,11 @@ const handleRouterChange = async (route: Route) => {
     sidebarTimer.stop();
   }
 
-  const state = store.getState();
-  if (isLogged && !state.isReady) {
-    store.setState({ route });
-    return;
-  }
-
   if (isLogged) {
-    const actualCurrentDay = state.game.day;
-    const completedTasks = state.game.completedTasksToday;
+    const validRoute = validateRouteAccess(state, route);
 
-    if ((route.name === 'day' || route.name === 'game') && route.day !== actualCurrentDay) {
-      router.navigate({ name: 'day', day: actualCurrentDay });
-      return;
-    }
-
-    if (route.name === 'game' && completedTasks.includes(route.gameId)) {
-      router.navigate({ name: 'day', day: actualCurrentDay });
+    if (validRoute !== route) {
+      router.navigate(validRoute);
       return;
     }
   }
@@ -82,21 +93,13 @@ async function initializeGameProgress(userId: string) {
     const dbData = await loadGameStateFromDB(userId);
     const localBackup = loadFromLocalBackup(userId);
 
-    let finalGameState: Partial<GameState> = {};
+    let finalGameState = dbData?.gameState || localBackup?.data || {};
 
-    if (dbData && localBackup) {
-      if (localBackup.timestamp > dbData.updatedAt) {
-        finalGameState = localBackup.data;
-        saveGameStateToDB(userId, finalGameState as GameState).catch((err) =>
-          showError(getErrorMessage(err, 'Error saving progress')),
-        );
-      } else {
-        finalGameState = dbData.gameState;
-      }
-    } else if (dbData) {
-      finalGameState = dbData.gameState;
-    } else if (localBackup) {
+    if (dbData && localBackup && localBackup.timestamp > dbData.updatedAt) {
       finalGameState = localBackup.data;
+      saveGameStateToDB(userId, finalGameState as GameState).catch((err) => {
+        showError(getErrorMessage(err, 'Failed to restore progress'));
+      });
     }
 
     store.setState({
@@ -105,25 +108,55 @@ async function initializeGameProgress(userId: string) {
   } catch (err) {
     showError(getErrorMessage(err, 'Failed to restore progress'));
   } finally {
+    const state = store.getState();
+    const finalRoute = validateRouteAccess(state, state.route);
+
     store.setState({
       isReady: true,
+      route: finalRoute,
     });
-    handleRouterChange(store.getState().route);
+
+    if (finalRoute !== state.route) {
+      router.navigate(finalRoute);
+    }
     spinner.hide();
   }
 }
 
-const watchAuth = () => {
+async function bootstrap() {
+  spinner.show('Starting DevQuest...');
+  try {
+    const session = await getSession();
+
+    if (session?.user) {
+      store.setState({
+        user: {
+          id: session.user.id,
+          email: session.user.user_metadata.email || session.user.email || '',
+          name: session.user.user_metadata?.name,
+          avatarId: session.user.user_metadata?.avatar,
+        },
+      });
+
+      await initializeGameProgress(session.user.id);
+    } else {
+      store.setState({ isReady: true });
+      handleRouterChange(store.getState().route);
+    }
+  } catch (error) {
+    showError(getErrorMessage(error, 'Auth check failed'));
+    store.setState({ isReady: true });
+    handleRouterChange(store.getState().route);
+  } finally {
+    spinner.hide();
+  }
+
   onAuthStateChange(async (event, session) => {
-    if (
-      session?.user?.id &&
-      store.getState().user?.id === session?.user?.id &&
-      (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')
-    ) {
+    if (event === 'INITIAL_SESSION') {
       return;
     }
 
-    if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+    if (event === 'SIGNED_IN') {
       if (session?.user) {
         store.setState({
           user: {
@@ -142,34 +175,42 @@ const watchAuth = () => {
         }
       } else {
         store.setState({ isReady: true });
+        handleRouterChange(store.getState().route);
       }
     } else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
       if (session?.user) {
-        store.setState({
-          user: {
-            ...store.getState().user!,
-            name: session.user.user_metadata?.name,
-            avatarId: session.user.user_metadata?.avatar,
-          },
-        });
+        const currentUser = store.getState().user;
+        if (currentUser) {
+          store.setState({
+            user: {
+              ...currentUser,
+              name: session.user.user_metadata?.name,
+              avatarId: session.user.user_metadata?.avatar,
+            },
+          });
+        }
       }
     } else if (event === 'SIGNED_OUT') {
       const currentState = store.getState();
       if (currentState.user) {
         clearLocalBackup(currentState.user.id);
       }
-
-      store.setState({ user: null, game: initialState.game, isReady: true });
+      store.setState({
+        user: null,
+        game: initialState.game,
+        route: { name: 'auth' },
+      });
       router.navigate({ name: 'auth' });
     }
   });
-};
+}
 
 const handlers = {
   onStart: () => router.navigate({ name: 'auth' }),
 
   onSignIn: async (email: string, pass: string) => {
     try {
+      store.setState({ user: null });
       spinner.show('Logging in...');
       await signIn(email, pass);
     } catch (error) {
@@ -180,11 +221,12 @@ const handlers = {
 
   onSignUp: async (name: string, email: string, pass: string, avatar: string) => {
     try {
+      store.setState({ user: null });
       spinner.show('Creating account...');
       await signUp(email, pass, name, avatar);
     } catch (error) {
       spinner.hide();
-      showError(getErrorMessage(error, 'Login failed'));
+      showError(getErrorMessage(error, 'Registration failed'));
     }
   },
 
@@ -226,7 +268,7 @@ const renderApp = (state: AppState) => {
     case 'dashboard':
       root.replaceChildren(
         renderDashboardScreen({
-          currentDay: store.getState().game.day,
+          currentDay: state.game.day,
           onSelectDay: handlers.onSelectDay,
           onSignOut: handlers.onSignOut,
         }),
@@ -270,6 +312,37 @@ const renderApp = (state: AppState) => {
   }
 };
 
+const gameSyncChannel = new BroadcastChannel('game_sync_channel');
+
+gameSyncChannel.onmessage = (event) => {
+  if (event.data.type === 'SYNC_GAME_STATE') {
+    store.setState({ game: event.data.game });
+    const stateAfterSync = store.getState();
+
+    const validRoute = validateRouteAccess(stateAfterSync, stateAfterSync.route);
+
+    if (JSON.stringify(validRoute) !== JSON.stringify(stateAfterSync.route)) {
+      router.navigate(validRoute);
+    } else if (stateAfterSync.route.name !== 'game') {
+      renderApp(stateAfterSync);
+    }
+  }
+};
+
+const syncGameProgress = () => {
+  const state = store.getState();
+  if (state.user) {
+    saveGameStateToDB(state.user.id, state.game).catch((err) => {
+      showError(getErrorMessage(err, 'Error saving progress'));
+    });
+
+    gameSyncChannel.postMessage({
+      type: 'SYNC_GAME_STATE',
+      game: store.getState().game,
+    });
+  }
+};
+
 router = new Router(handleRouterChange);
 
 let currentRouteString: string | null = null;
@@ -287,7 +360,7 @@ store.subscribe((state) => {
 });
 
 router.init();
-watchAuth();
+bootstrap();
 
 eventBus.on('GAME_STARTED', (payload) => {
   router.navigate({ name: 'game', day: payload.day, gameId: payload.gameId });
@@ -295,8 +368,8 @@ eventBus.on('GAME_STARTED', (payload) => {
 
 eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
-
   const state = store.getState();
+
   if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
     return;
   }
@@ -309,11 +382,7 @@ eventBus.on('TASK_FINISHED', (payload) => {
     alert(`You ${payload.outcome}! ${payload.userAnswer}`);
   }
 
-  if (state.user) {
-    saveGameStateToDB(state.user.id, state.game).catch((err) =>
-      showError(getErrorMessage(err, 'Error saving progress')),
-    );
-  }
+  syncGameProgress();
 
   const currentDay = state.game.day;
   router.navigate({ name: 'day', day: currentDay });
@@ -328,14 +397,10 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
+  syncGameProgress();
+
   const state = store.getState();
   const { day, stress, xp } = state.game;
-
-  if (state.user) {
-    saveGameStateToDB(state.user.id, state.game).catch((err) =>
-      showError(getErrorMessage(err, 'Error saving progress')),
-    );
-  }
 
   root.append(
     createDayResultScreen({
@@ -347,22 +412,39 @@ eventBus.on('DAY_COMPLETED', () => {
   );
 });
 
+let isResetting = false;
+
 eventBus.on('RESTART_GAME', async () => {
   const state = store.getState();
-  if (!state.user) return;
+  if (!state.user || isResetting) return;
+
+  isResetting = true;
 
   spinner.show('Resetting world...');
+
   try {
     await resetGameProgress(state.user.id);
 
+    const newGameState = structuredClone(initialState.game);
+
     store.setState({
-      game: { ...initialState.game },
+      game: newGameState,
     });
 
-    router.navigate({ name: 'dashboard' });
+    gameSyncChannel.postMessage({
+      type: 'SYNC_GAME_STATE',
+      game: newGameState,
+    });
+
+    if (store.getState().route.name === 'dashboard') {
+      renderApp(store.getState());
+    } else {
+      router.navigate({ name: 'dashboard' });
+    }
   } catch (err) {
     showError(getErrorMessage(err, 'Failed to restart game'));
   } finally {
     spinner.hide();
+    isResetting = false;
   }
 });

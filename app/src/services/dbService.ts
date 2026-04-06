@@ -54,7 +54,7 @@ export async function loadGameStateFromDB(userId: string) {
     .single();
 
   if (error) {
-    throw new Error('Progress loading error');
+    throw error;
   }
 
   if (data) {
@@ -75,11 +75,9 @@ export async function loadGameStateFromDB(userId: string) {
 }
 
 export async function resetGameProgress(userId: string) {
-  const fresh = initialState.game;
+  const fresh = structuredClone(initialState.game);
 
-  clearLocalBackup(userId);
-
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('player_state')
     .update({
       day: fresh.day,
@@ -90,7 +88,14 @@ export async function resetGameProgress(userId: string) {
       completed_tasks_today: fresh.completedTasksToday,
       updated_at: new Date().toISOString(),
     })
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select();
 
   if (error) throw error;
+
+  if (!data || data.length === 0) {
+    throw new Error('No player state found to reset');
+  }
+
+  clearLocalBackup(userId);
 }
