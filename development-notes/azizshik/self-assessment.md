@@ -1,7 +1,7 @@
 # Self-Assessment — Aziz Shik
 
 **Дата:** 06.04.2026 **GitHub:** [AzizShik](https://github.com/AzizShik) **PR:**
-[Pull Request](google.com)
+[Pull Request](https://github.com/OlgaMinaievaWebDev/rs-tandem-devquest/pull/86)
 
 ## Таблица реализованных фич (Personal Features)
 
