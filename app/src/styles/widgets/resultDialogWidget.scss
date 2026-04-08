@@ -90,25 +90,25 @@
 
 .result-dialog--unsuccessfully {
   .result-dialog__card {
-    border-color: #f33;
+    border-color: $color-danger;
     background: rgba(30, 0, 0, 0.9);
   }
 
   .result-dialog__title {
-    color: #ff6666;
+    color: $color-danger;
   }
 }
 
 .result-dialog__delta--positive {
-  color: #0f0;
+  color: $color-success;
 }
 
 .result-dialog__delta--negative {
-  color: #f66;
+  color: $color-danger;
 }
 
 .result-dialog__message {
   margin: 1rem 0;
   font-style: italic;
-  color: #ccc;
+  color: $grey-200;
 }
