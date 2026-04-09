@@ -14,9 +14,12 @@ import { eventBus } from './core/EventBus';
 import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
-import { createDayResultScreen } from './ui/screens/dayResultScreen';
 import { showError } from './ui/components/toast';
-import { getErrorMessage } from './utils/getErrorMessage';
+import  getErrorMessage  from './utils/getErrorMessage';
+import {
+  ResultDialogWidget,
+  type ResultDialogProps,
+} from './ui/screens/widgets/resultDialogWidget';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('#app not found');
@@ -220,21 +223,49 @@ eventBus.on('GAME_STARTED', (payload) => {
 eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
 
-  const state = store.getState();
-  if (payload.outcome === 'correct' && state.game.completedTasksToday.length === 0) {
-    return;
+  const { game } = store.getState();
+
+  let dialogProps: ResultDialogProps | null = null;
+
+  if (payload.outcome === 'correct') {
+    const completedCount = game.completedTasksToday.length;
+
+    if (completedCount === 1) {
+      dialogProps = {
+        type: 'task-partial-success',
+        day: game.day,
+        message: 'Great job! Complete one more task to proceed to the next day.',
+        stats: {
+          stress: { value: `${game.stress}%`, delta: '+5%' },
+          authority: { value: '4', delta: '+1' },
+          xp: { value: `${game.xp}`, delta: '+20' },
+        },
+        onAction: () => router.navigate({ name: 'day', day: game.day }),
+      };
+    }
+  } else {
+    const failMsg =
+      payload.outcome === 'timeout'
+        ? "Time's up! You need to be faster under pressure."
+        : `Not quite right. "${payload.userAnswer}" was incorrect. Review the concept and try again.`;
+
+    dialogProps = {
+      type: 'task-failed',
+      day: game.day,
+      message: failMsg,
+      stats: {
+        stress: { value: `${game.stress}%`, delta: '+15%' },
+        authority: { value: '2', delta: '-1' },
+        xp: { value: `${game.xp}`, delta: '-10' },
+      },
+      onAction: () => router.navigate({ name: 'day', day: game.day }),
+    };
   }
 
-  if (payload.outcome === 'timeout') {
-    alert(`Timeout!`);
-  } else if (payload.outcome === 'wrong') {
-    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
-  } else if (payload.outcome === 'correct') {
-    alert(`You ${payload.outcome}! ${payload.userAnswer}`);
+  if (dialogProps) {
+    const dialog = new ResultDialogWidget(root, dialogProps);
+    dialog.show();
   }
-
-  const currentDay = state.game.day;
-  router.navigate({ name: 'day', day: currentDay });
 });
 
 eventBus.on('TASK_STARTED', (payload) => {
@@ -246,13 +277,22 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  const { day, stress, xp } = store.getState().game;
-  root.append(
-    createDayResultScreen({
-      day: day - 1,
-      stress,
-      xpGained: xp,
-      onNextDay: () => router.navigate({ name: 'day', day }),
-    }),
-  );
+  const { game } = store.getState();
+
+  const completedDay = game.day - 1;
+
+  const dialog = new ResultDialogWidget(root, {
+    type: 'day-complete',
+    day: completedDay,
+    stats: {
+      stress: { value: `${game.stress}%` },
+      authority: { value: '3', delta: '+1' },
+      xp: { value: `${game.xp}`, delta: '+50' },
+    },
+    onAction: () => {
+      router.navigate({ name: 'day', day: game.day });
+    },
+  });
+
+  dialog.show();
 });
