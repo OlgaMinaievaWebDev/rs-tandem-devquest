@@ -49,7 +49,17 @@ export default function renderGameScreen({
     });
     gameWidget.start();
   } else {
-    widgetContainer.innerHTML = `<h2 style="color:white">Game ${gameId} is under construction!</h2>`;
+    widgetContainer.innerHTML = `<h2 style="color:white">Game ${gameId} is under construction!</h2><p style="color:white">The button simulates the successful completion of the game.</p>`;
+    const tempBackBtn = document.createElement('button');
+    tempBackBtn.textContent = '← Finish the game';
+    tempBackBtn.addEventListener('click', () => {
+      eventBus.emit('TASK_FINISHED', {
+        gameId,
+        outcome: 'correct',
+        userAnswer: `Simulated answer for ${gameId}`,
+      });
+    });
+    widgetContainer.append(tempBackBtn);
   }
 
   layout.main.replaceChildren(widgetContainer);

@@ -16,6 +16,21 @@ function createToastContainer() {
   return toastContainer;
 }
 
+function dismissToast(toast: HTMLDivElement) {
+  toast.classList.remove('toast--visible');
+  toast.addEventListener(
+    'transitionend',
+    () => {
+      toast.remove();
+      if (toastContainer && toastContainer.children.length === 0) {
+        toastContainer.remove();
+        toastContainer = null;
+      }
+    },
+    { once: true },
+  );
+}
+
 export function showToast(
   message: string,
   type: ToastType = 'error',
@@ -54,21 +69,6 @@ export function showToast(
     clearTimeout(timeoutId);
     dismissToast(toast);
   });
-}
-
-function dismissToast(toast: HTMLDivElement) {
-  toast.classList.remove('toast--visible');
-  toast.addEventListener(
-    'transitionend',
-    () => {
-      toast.remove();
-      if (toastContainer && toastContainer.children.length === 0) {
-        toastContainer.remove();
-        toastContainer = null;
-      }
-    },
-    { once: true },
-  );
 }
 
 export const showError = (message: string) => showToast(message, 'error');

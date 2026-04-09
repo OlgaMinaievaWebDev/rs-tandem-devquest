@@ -30,6 +30,7 @@ export interface AppState {
   route: Route;
   user: User | null;
   game: GameState;
+  isReady: boolean;
 }
 
 const defaultGameState: GameState = {
@@ -46,4 +47,5 @@ export const initialState: AppState = {
   route: { name: 'start' },
   user: null,
   game: defaultGameState,
+  isReady: false,
 };
