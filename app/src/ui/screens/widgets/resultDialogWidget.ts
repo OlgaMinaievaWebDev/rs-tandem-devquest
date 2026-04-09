@@ -47,6 +47,8 @@ export class ResultDialogWidget {
 
     this.dialog = document.createElement('dialog');
     this.dialog.className = 'result-dialog';
+
+    this.setupEventListeners();
   }
 
   show() {
@@ -62,6 +64,23 @@ export class ResultDialogWidget {
   hide() {
     this.dialog.close();
     this.dialog.remove();
+  }
+
+  private setupEventListeners() {
+    this.dialog.addEventListener('click', (e: PointerEvent) => {
+      if (e.target === this.dialog) {
+        this.hide();
+        this.props.onAction();
+      }
+    });
+
+    this.dialog.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.hide();
+        this.props.onAction();
+      }
+    });
   }
 
   render() {

@@ -243,8 +243,6 @@ eventBus.on('TASK_FINISHED', (payload) => {
         },
         onAction: () => router.navigate({ name: 'day', day: game.day }),
       };
-    } else if (completedCount >= 2) {
-      return;
     }
   } else {
     const failMsg =
@@ -283,9 +281,11 @@ eventBus.on('DAY_COMPLETED', () => {
   const state = store.getState();
   const game = state.game;
 
+  const completedDay = game.day - 1;
+
   const dialog = new ResultDialogWidget(root, {
     type: 'day-complete',
-    day: game.day - 1,
+    day: completedDay,
     stats: {
       stress: { value: `${game.stress}%` },
       authority: { value: '3', delta: '+1' },
