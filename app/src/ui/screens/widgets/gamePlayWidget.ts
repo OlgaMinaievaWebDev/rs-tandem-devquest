@@ -53,7 +53,7 @@ export default class GamePlayWidget {
     this.showTypingIndicator();
 
     try {
-      const bossData = await AIService.getBossResponse(
+      const bossData = await AIService.getAILeadResponse(
         this.gameId as 'bugfix' | 'debug',
         this.day,
         "Hello, I'm ready for today's task.",
@@ -129,7 +129,7 @@ export default class GamePlayWidget {
 
     const typingLabel = document.createElement('span');
     typingLabel.className = 'message__label';
-    typingLabel.textContent = 'BOSS';
+    typingLabel.textContent = 'AI Lead';
 
     const typingContent = document.createElement('div');
     typingContent.className = 'message__content typing-content';
@@ -145,7 +145,7 @@ export default class GamePlayWidget {
 
     const typingText = document.createElement('span');
     typingText.className = 'typing-text';
-    typingText.textContent = 'Boss is typing';
+    typingText.textContent = 'AI Lead is typing';
 
     typingContent.append(typingDotsContainer);
     typingContent.append(typingText);
@@ -173,7 +173,7 @@ export default class GamePlayWidget {
 
       const messageLabel = document.createElement('span');
       messageLabel.className = 'message__label';
-      messageLabel.textContent = 'BOSS';
+      messageLabel.textContent = 'AI Lead';
 
       const messageContent = document.createElement('div');
       messageContent.className = 'message__content';
@@ -265,7 +265,7 @@ export default class GamePlayWidget {
     this.showTypingIndicator();
 
     try {
-      const bossData = await AIService.getBossResponse(
+      const bossData = await AIService.getAILeadResponse(
         this.gameId as 'bugfix' | 'debug',
         this.day,
         text,

@@ -40,7 +40,7 @@ export class AIService {
     }));
   }
 
-  public static async getBossResponse(
+  public static async getAILeadResponse(
     gameId: 'bugfix' | 'debug',
     day: number,
     userMessage: string,
