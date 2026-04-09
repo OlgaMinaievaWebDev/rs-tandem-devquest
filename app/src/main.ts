@@ -296,22 +296,3 @@ eventBus.on('DAY_COMPLETED', () => {
 
   dialog.show();
 });
-
-setTimeout(() => {
-  const { game } = store.getState();
-
-  const dialog = new ResultDialogWidget(root, {
-    type: 'day-complete',
-    day: game.day - 1,
-    stats: {
-      stress: { value: `${game.stress}%` },
-      authority: { value: '3', delta: '+1' },
-      xp: { value: `${game.xp}`, delta: '+50' },
-    },
-    onAction: () => {
-      router.navigate({ name: 'day', day: game.day });
-    },
-  });
-
-  dialog.show();
-}, 300);
