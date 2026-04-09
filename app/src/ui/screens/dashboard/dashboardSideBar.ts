@@ -1,6 +1,9 @@
 import { renderStatusBar } from '../../components/statusBar';
 import '../../../styles/screens/dashboard/dashboardSideBar.scss';
 import TimerWidget from '../../components/timerWidget';
+import { eventBus } from '../../../core/EventBus';
+import { createButton } from '../../components/button';
+import { store } from '../../../core/store';
 
 export const sidebarTimer = new TimerWidget();
 
@@ -9,7 +12,6 @@ export type SidebarHandlers = {
   onSmokeBreak?: () => void;
   onLunchBreak?: () => void;
   onHelp?: () => void;
-  onRestart?: () => void;
   onLogout?: () => void;
 };
 
@@ -50,6 +52,12 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
   const root = document.createElement('div');
   root.className = 'sidebar';
 
+  const header = document.createElement('div');
+  header.className = 'sidebar__header';
+
+  const state = store.getState();
+  const { day, xp, health, stress } = state.game;
+
   // ---- Profile (TEMP) ----
   const profile = document.createElement('div');
   profile.className = 'sidebar__profile';
@@ -65,17 +73,14 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
   profile.append(avatar, username);
 
   // ---- Status Bars (TEMP) ----
-  const stress = 50;
   const stressMax = 100;
-
-  const authority = 3;
   const authorityMax = 10;
 
   const bars = document.createElement('div');
   bars.className = 'sidebar__bars';
   bars.append(
     renderStatusBar('Stress', stress, stressMax, 'stress'),
-    renderStatusBar('Authority', authority, authorityMax, 'authority'),
+    renderStatusBar('Authority', health, authorityMax, 'authority'),
   );
 
   // ---- Action Menu ----
@@ -107,7 +112,29 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
       onClick: handlers.onHelp,
     }),
   );
+  header.append(profile, bars, sidebarTimer.getElement(), menu);
 
-  root.append(profile, bars, sidebarTimer.getElement(), menu);
+  const footer = document.createElement('div');
+  footer.className = 'sidebar__footer';
+
+  const restartButton = createButton({
+    label: 'Restart Game',
+    variant: 'terminal',
+    onClick: () => {
+      eventBus.emit('RESTART_GAME', undefined);
+    },
+  });
+
+  const isGameFresh = day === 1 && xp === 0 && health === 100 && stress === 0;
+  if (isGameFresh) {
+    restartButton.disabled = true;
+    restartButton.title = "You haven't played yet!";
+  } else {
+    restartButton.disabled = false;
+    restartButton.title = 'Start over from Day 1';
+  }
+
+  footer.append(restartButton);
+  root.append(header, footer);
   return root;
 }
