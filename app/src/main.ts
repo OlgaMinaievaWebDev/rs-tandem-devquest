@@ -223,8 +223,7 @@ eventBus.on('GAME_STARTED', (payload) => {
 eventBus.on('TASK_FINISHED', (payload) => {
   sidebarTimer.stop();
 
-  const state = store.getState();
-  const game = state.game;
+  const { game } = store.getState();
 
   let dialogProps: ResultDialogProps | null = null;
 
@@ -278,8 +277,7 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  const state = store.getState();
-  const game = state.game;
+  const { game } = store.getState();
 
   const completedDay = game.day - 1;
 
@@ -300,8 +298,7 @@ eventBus.on('DAY_COMPLETED', () => {
 });
 
 setTimeout(() => {
-  const state = store.getState();
-  const game = state.game;
+  const { game } = store.getState();
 
   const dialog = new ResultDialogWidget(root, {
     type: 'day-complete',

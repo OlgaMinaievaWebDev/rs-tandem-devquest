@@ -38,7 +38,9 @@ const DAY_COMPLETE_MESSAGES = [
 
 export class ResultDialogWidget {
   private container: HTMLElement;
+
   private props: ResultDialogProps;
+
   private dialog: HTMLDialogElement;
 
   constructor(container: HTMLElement, props: ResultDialogProps) {
@@ -127,7 +129,7 @@ export class ResultDialogWidget {
       this.createStatLine('XP', stats.xp),
     );
 
-    let btnLabel = actionLabel || this.getBtnLabel(type);
+    const btnLabel = actionLabel || this.getBtnLabel(type);
 
     const actionBtn = createButton({
       label: btnLabel,
@@ -164,6 +166,9 @@ export class ResultDialogWidget {
       case 'game-over-victory':
         titleText = 'Victory!';
         break;
+      default:
+        titleText = 'Unknown';
+        break;
     }
 
     return titleText;
@@ -187,6 +192,9 @@ export class ResultDialogWidget {
         break;
       case 'game-over-victory':
         btnLabel = 'Play Again';
+        break;
+      default:
+        btnLabel = 'Unknown';
         break;
     }
 

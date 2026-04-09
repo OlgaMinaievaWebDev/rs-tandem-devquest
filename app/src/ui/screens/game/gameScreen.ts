@@ -46,7 +46,7 @@ export default function renderGameScreen({
     tempBackBtn.textContent = '← Finish the game';
     tempBackBtn.addEventListener('click', () => {
       eventBus.emit('TASK_FINISHED', {
-        gameId: gameId,
+        gameId,
         outcome: 'correct',
         userAnswer: `Simulated answer for ${gameId}`,
       });
