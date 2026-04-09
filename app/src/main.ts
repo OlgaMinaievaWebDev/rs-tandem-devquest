@@ -15,7 +15,7 @@ import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
 import { showError } from './ui/components/toast';
-import { getErrorMessage } from './utils/getErrorMessage';
+import  getErrorMessage  from './utils/getErrorMessage';
 import {
   ResultDialogWidget,
   type ResultDialogProps,
