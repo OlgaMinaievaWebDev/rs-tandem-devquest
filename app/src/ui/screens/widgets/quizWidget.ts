@@ -64,27 +64,11 @@ export default class QuizWidget {
     const header = document.createElement('div');
     header.className = 'quiz-widget__header';
 
-    const back = createButton({
-      label: 'Back to Dashboard',
-      icon: '←',
-      variant: 'secondary',
-      className: 'day-main__btn',
-      onClick: () => {
-        this.onBack();
-      },
-      ariaLabel: 'Back to dashboard',
-    });
-
-    back.addEventListener('click', () => {
-      eventBus.emit('TASK_CANCELLED', { gameId: this.gameId });
-      this.onBack();
-    });
-
     const progress = document.createElement('span');
     progress.className = 'quiz-widget__progress';
     progress.textContent = `Question ${this.currentIndex + 1} of ${this.questions.length}`;
 
-    header.append(back, progress);
+    header.append(progress);
 
     const questionWrap = document.createElement('div');
     questionWrap.className = 'quiz-widget__wrap';

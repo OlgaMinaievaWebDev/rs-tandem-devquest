@@ -161,6 +161,11 @@ async function bootstrap() {
 
     if (event === 'SIGNED_IN') {
       if (session?.user) {
+        const currentUser = store.getState().user;
+        if (currentUser && currentUser.id === session.user.id) {
+          return;
+        }
+
         store.setState({
           user: {
             id: session.user.id,
@@ -295,7 +300,10 @@ const renderApp = (state: AppState) => {
           day: state.route.day,
           gameId: state.route.gameId,
           skill: state.game.selectedSkills[0] || 'Frontend',
-          onBack: () => router.navigate({ name: 'day', day: store.getState().game.day }),
+          onBack: () => {
+            eventBus.emit('TASK_CANCELLED');
+            router.navigate({ name: 'day', day: store.getState().game.day });
+          },
           onSignOut: handlers.onSignOut,
         }),
       );
