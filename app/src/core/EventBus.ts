@@ -5,7 +5,14 @@ export type EventMap = {
   TASK_FINISHED: { gameId: string; outcome: 'correct' | 'wrong' | 'timeout'; userAnswer: string };
   DAY_COMPLETED: { day: number };
   STRESS_CHANGED: { amount: number };
-  RESTART_GAME: undefined;
+  RESTART_GAME: { changeView: boolean };
+  GAME_OVER_DEFEAT: undefined;
+  GAME_OVER_VICTORY: { message: string };
+  SHOW_TASK_RESULT: {
+    gameId: string;
+    outcome: 'correct' | 'wrong' | 'timeout';
+    userAnswer: string;
+  };
 };
 
 type EventName = keyof EventMap;

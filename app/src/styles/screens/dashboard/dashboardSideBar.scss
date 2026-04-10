@@ -19,14 +19,12 @@
     gap: $space-4;
   }
 
-  // Profile block
   &__profile {
     display: grid;
     grid-template-columns: 44px 1fr;
     align-items: center;
     gap: $space-3;
-
-    padding: $space-3;
+    padding: $radius-md;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     background: $color-surface-2;
@@ -34,28 +32,44 @@
 
   &__avatar {
     width: 44px;
-    height: 44px;
     border-radius: $radius-sm;
-    display: grid;
-    place-items: center;
-
-    border: 1px solid $color-border;
-    background: $color-surface;
+    display: block;
+    border: 1px solid $green;
   }
 
   &__username {
+    font-family: $font-family-decorative;
     font-weight: $weight-bold;
     color: $color-text;
+    max-width: 170px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  // Status bars container
+  &__xp {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1em;
+    padding: $space-1 $space-3;
+    border-radius: $radius-sm;
+    border: 1px solid $color-border;
+    background: $color-surface-2;
+    font-size: $text-md;
+    &-title {
+      font-family: $font-family-decorative;
+      color: $green;
+      font-weight: 700;
+    }
+  }
+
   &__bars {
     display: flex;
     flex-direction: column;
     gap: $space-3;
   }
 
-  // Action menu
   .action-menu {
     display: flex;
     flex-direction: column;
@@ -95,6 +109,10 @@
         outline: 2px solid $color-success;
         outline-offset: 2px;
       }
+      &--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
     }
 
     &__icon {
@@ -117,7 +135,6 @@
     }
   }
 
-  // Bottom controls
   &__controls {
     margin-top: auto;
     display: flex;
