@@ -17,10 +17,11 @@
   }
 
   &__h1 {
-    font-size: $text-4xl;
+    font-size: $text-3xl;
     letter-spacing: $tracking-wider;
     text-transform: uppercase;
-    margin-bottom: $space-3;
+    margin: 0;
+    font-family: $font-family-accent;
   }
 
   &__label {
@@ -50,7 +51,7 @@
     background: rgba($color-success, 0.1);
     opacity: 0.5;
     animation: scanline 4s linear infinite;
-    pointer-events: none; // Don't block clicks
+    pointer-events: none;
   }
 
   &__p {
@@ -59,7 +60,7 @@
     margin: 0 0 $space-2 0;
     color: $color-success;
     font-size: $text-sm;
-    text-shadow: 0 0 5px rgba($color-success, 0.55); // "Glow" effect
+    text-shadow: 0 0 5px rgba($color-success, 0.55);
 
     &:last-child {
       margin-bottom: 0;
