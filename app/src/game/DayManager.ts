@@ -80,7 +80,7 @@ export class DayManager {
     if (day >= 7 && updatedTasks.length >= 2) {
       store.setState({
         game: {
-          ...state.game,
+          ...store.getState().game,
           completedTasksToday: [],
         },
       });
@@ -92,7 +92,7 @@ export class DayManager {
       const nextDay = day + 1;
       store.setState({
         game: {
-          ...state.game,
+          ...store.getState().game,
           day: nextDay,
           completedTasksToday: [],
         },
