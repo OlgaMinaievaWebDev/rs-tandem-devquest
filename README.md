@@ -31,13 +31,3 @@
 2. Install dependencies: `npm install`.
 3. Start the project: `npm run dev`.
 
-
-
-## Video proof for requirement #4
-
-Demonstration of:
-- 404 page
-- loading state
-- API error handling
-
-Video: [https://youtu.be/DJ9E0sJJ-Qw]

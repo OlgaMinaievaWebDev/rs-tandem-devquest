@@ -1,4 +1,3 @@
-// src/services/aiService.ts
 import supabase from '../lib/supabase';
 
 export interface QuizQuestion {
@@ -8,6 +7,18 @@ export interface QuizQuestion {
 }
 
 export interface ChatEvaluation {
+  isCorrect: boolean;
+  feedback: string;
+}
+
+export interface BugfixTask {
+  description: string;
+  buggyCode: string;
+  correctSolution: string;
+  hint?: string;
+}
+
+export interface BugfixEvaluation {
   isCorrect: boolean;
   feedback: string;
 }
@@ -32,24 +43,61 @@ export class AIService {
     }));
   }
 
-  // 2. ПРОВЕРКА ОТВЕТА В ЧАТЕ (Вызывается при каждом ответе пользователя)
-  public static async evaluateChatAnswer(
-    skill: string,
-    question: string,
-    userAnswer: string,
-  ): Promise<ChatEvaluation> {
-    // Здесь промпт динамический! Он включает ответ реального игрока.
-    const prompt = `Ты строгий, но справедливый Senior ${skill} Developer. 
-    Твой джуниор ответил на вопрос: "${question}". 
-    Его ответ: "${userAnswer}".
-    Оцени этот ответ. Верни СТРОГО JSON: { "isCorrect": true/false, "feedback": "Твой короткий комментарий и совет" }. Никакого лишнего текста.`;
+  public static async getBugfixTask(
+    day: number,
+    skill: string = 'JavaScript',
+  ): Promise<BugfixTask> {
+    const prompt = `You are a Senior ${skill} Developer creating a "Fix the Bug" challenge for a junior.
+    Day difficulty: ${day}/7 (higher = more subtle bug).
 
-    return this.askAI(prompt);
+    Generate a small, realistic frontend/JavaScript bug. The code should be 5–50 lines, easy to read, with a single bug (e.g., closure mistake, incorrect 'this' binding, state mutation, async issue, array method misuse).
+
+    Return STRICTLY a JSON object with:
+    {
+      "description": "Briefly explain what the code is supposed to do and hint at the bug without giving away the solution.",
+      "buggyCode": "The buggy code snippet (use proper indentation, no syntax highlighting hints in the code).",
+      "correctSolution": "The corrected version of the code.",
+      "hint": "Optional short hint (or empty string)."
+    }
+
+    No extra text, only valid JSON.`;
+
+    const raw = await this.askAI(prompt);
+    return {
+      description: raw.description,
+      buggyCode: raw.buggyCode,
+      correctSolution: raw.correctSolution,
+      hint: raw.hint || '',
+    };
   }
 
-  // 3. ГЕНЕРАЦИЯ БАГФИКСА (На будущее)
-  public static async getBugfixTask(skill: string, day: number) {
-    const prompt = `Ты Senior Developer. Дай задачу на поиск бага для ${skill}... Уровень сложности: день ${day} из 7.`;
+  public static async evaluateBugfixAnswer(
+    task: BugfixTask,
+    userAnswer: string,
+  ): Promise<BugfixEvaluation> {
+    const prompt = `You are a strict but fair Senior Developer evaluating a junior's bug fix.
+
+    Original buggy code:
+    \`\`\`
+    ${task.buggyCode}
+    \`\`\`
+
+    Correct solution:
+    \`\`\`
+    ${task.correctSolution}
+    \`\`\`
+
+    Junior's answer:
+    "${userAnswer}"
+
+    Determine if the answer is correct or contains the correct fix. It's acceptable if they explain the fix instead of providing full code. Be lenient with formatting.
+
+    Return STRICTLY a JSON object:
+    {
+      "isCorrect": true/false,
+      "feedback": "Your constructive feedback (1-2 sentences). If wrong, guide them without giving the full answer."
+    }`;
+
     return this.askAI(prompt);
   }
 
