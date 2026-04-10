@@ -98,7 +98,8 @@
 }
 
 .chat__textarea {
-  min-height: 100px;
+  min-height: 200px;
+  max-height: 400px;
   flex: 1;
   font-size: $text-md;
   color: $color-text;
@@ -107,7 +108,7 @@
   padding: $space-3 $space-7 $space-3 $space-3;
   border-radius: $radius-lg;
   font-family: inherit;
-  resize: none;
+  resize: vertical;
 
   transition: border-color 0.3s ease;
 }
