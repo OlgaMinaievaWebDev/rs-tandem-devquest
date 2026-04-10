@@ -6,7 +6,7 @@ import { store } from '../../../core/store';
 import { afterRender, scrollToBottom, shouldScrollToBottom } from '../../../utils/scrollUtils';
 import { renderMessageContent } from '../../../utils/renderMessage';
 import { eventBus } from '../../../core/EventBus';
-import { AIService } from '../../../services/aiService';
+import { AIService, type BugfixTask } from '../../../services/aiService';
 
 export type GamePlayWidgetProps = {
   day: number;
@@ -28,6 +28,9 @@ export default class GamePlayWidget {
   private chatSendBtn!: HTMLButtonElement;
   private typingIndicator!: HTMLElement;
 
+  private bugfixTask: BugfixTask | null = null;
+  private isWaitingForBugfixAnswer: boolean = false;
+
   constructor(container: HTMLElement, { day, gameId, onBack }: GamePlayWidgetProps) {
     this.container = container;
     this.day = day;
@@ -46,26 +49,59 @@ export default class GamePlayWidget {
       duration: 180,
     });
 
-    this.sendWelcomeMessage();
+    if (this.gameId === 'bugfix') {
+      this.fetchBugfixTask();
+    } else {
+      this.sendWelcomeMessage();
+    }
+  }
+
+  private async fetchBugfixTask() {
+    this.showTypingIndicator();
+
+    try {
+      const state = store.getState();
+      const skill = state.game.selectedSkills[0] || 'JavaScript';
+      const task = await AIService.getBugfixTask(this.day, skill);
+      this.bugfixTask = task;
+      this.isWaitingForBugfixAnswer = true;
+
+      let display = `**🐞 Bug Fix Challenge – Day ${this.day}**\n\n`;
+      display += `*${task.description}*\n\n`;
+      display += `**Buggy Code:**\n\`\`\`javascript\n${task.buggyCode}\n\`\`\``;
+      if (task.hint) {
+        display += `\n\n*Hint: ${task.hint}*`;
+      }
+      display += `\n\nPlease provide the corrected code or explain the fix.`;
+
+      this.addMessage('boss', display);
+    } catch (error) {
+      console.error('Failed to fetch bugfix task:', error);
+      this.addMessage('boss', '⚠️ Unable to generate a task. Please try again.');
+    } finally {
+      this.hideTypingIndicator();
+    }
   }
 
   private async sendWelcomeMessage() {
     this.showTypingIndicator();
 
     try {
-      const bossData = await AIService.getAILeadResponse(
-        this.gameId as 'bugfix' | 'debug',
-        this.day,
-        "Hello, I'm ready for today's task.",
-      );
+      // const welcomeText =
+      //   'Welcome. Write good code, or you’ll be running from more than just bugs. — AI Lead';
 
-      console.log(bossData);
+      const welcomeText = `Yo, step in the speakeasy, pull up a chair,
+          AI team lead — yeah, that's me right there.
+          You want the junior dev slot? Better not freeze,
+          I bootleg logic and I ship with ease.
 
-      let welcomeText = bossData.seniorLeadResponse;
+          One bad commit? That's a federal crime,
+          I’ll have you running from the feds before the next rhyme.
+          Keep the code smooth, like moonshine in a flask,
+          Ask too many questions? I’ll give you a task.
 
-      if (bossData.codeExample) {
-        welcomeText += `\n\n\`\`\`javascript\n${bossData.codeExample}\n\`\`\``;
-      }
+          Welcome to the team, kid, don't blow my disguise,
+          Fix the bugs quick — or sleep with the fizz.`;
 
       this.addMessage('boss', welcomeText);
     } catch (e) {
@@ -264,33 +300,29 @@ export default class GamePlayWidget {
 
     this.showTypingIndicator();
 
-    try {
-      const bossData = await AIService.getAILeadResponse(
-        this.gameId as 'bugfix' | 'debug',
-        this.day,
-        text,
-      );
+    if (this.gameId === 'bugfix' && this.isWaitingForBugfixAnswer && this.bugfixTask) {
+      this.isWaitingForBugfixAnswer = false;
+      this.showTypingIndicator();
 
-      this.hideTypingIndicator();
+      try {
+        const evaluation = await AIService.evaluateBugfixAnswer(this.bugfixTask, text);
+        this.hideTypingIndicator();
 
-      let displayText = bossData.seniorLeadResponse;
-
-      if (bossData.codeExample) {
-        displayText += `\n\n\`\`\`javascript\n${bossData.codeExample}\n\`\`\``;
+        let feedbackMessage = evaluation.feedback;
+        if (evaluation.isCorrect) {
+          feedbackMessage += `\n\n✅ **Well done!** The bug has been fixed.`;
+          this.addMessage('boss', feedbackMessage);
+          this.finishTask('correct', text);
+        } else {
+          feedbackMessage += `\n\n❌ Not quite right. Review the feedback and try again.`;
+          this.addMessage('boss', feedbackMessage);
+          this.isWaitingForBugfixAnswer = true;
+        }
+      } catch (error) {
+        this.hideTypingIndicator();
+        this.addMessage('boss', "Sorry, I couldn't evaluate your answer. Please try again.");
+        this.isWaitingForBugfixAnswer = true;
       }
-
-      if (bossData.codeExplanation) {
-        displayText += `\n\n${bossData.codeExplanation}`;
-      }
-
-      if (bossData.feedback) {
-        displayText += `\n\n**Feedback:** ${bossData.feedback}`;
-      }
-
-      this.addMessage('boss', displayText);
-    } catch (error) {
-      this.hideTypingIndicator();
-      this.addMessage('boss', "Sorry, I didn't get that. Can you explain your solution again?");
     }
   };
 
