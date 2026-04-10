@@ -11,14 +11,12 @@ import { AIService, type BugfixTask } from '../../../services/aiService';
 export type GamePlayWidgetProps = {
   day: number;
   gameId: 'bugfix' | 'quiz' | 'debug';
-  onBack: () => void;
 };
 
 export default class GamePlayWidget {
   private container: HTMLElement;
   private gameId: string;
   private day: number;
-  private onBack: () => void;
 
   private messages: Array<{ type: 'boss' | 'user'; content: string }> = [];
   private isTyping = false;
@@ -31,11 +29,10 @@ export default class GamePlayWidget {
   private bugfixTask: BugfixTask | null = null;
   private isWaitingForBugfixAnswer: boolean = false;
 
-  constructor(container: HTMLElement, { day, gameId, onBack }: GamePlayWidgetProps) {
+  constructor(container: HTMLElement, { day, gameId }: GamePlayWidgetProps) {
     this.container = container;
     this.day = day;
     this.gameId = gameId;
-    this.onBack = onBack;
 
     this.typingIndicator = this.createTypingIndicator();
   }
@@ -49,11 +46,7 @@ export default class GamePlayWidget {
       duration: 180,
     });
 
-    if (this.gameId === 'bugfix') {
-      this.fetchBugfixTask();
-    } else {
-      this.sendWelcomeMessage();
-    }
+    this.fetchBugfixTask();
   }
 
   private async fetchBugfixTask() {
@@ -78,37 +71,6 @@ export default class GamePlayWidget {
     } catch (error) {
       console.error('Failed to fetch bugfix task:', error);
       this.addMessage('boss', '⚠️ Unable to generate a task. Please try again.');
-    } finally {
-      this.hideTypingIndicator();
-    }
-  }
-
-  private async sendWelcomeMessage() {
-    this.showTypingIndicator();
-
-    try {
-      // const welcomeText =
-      //   'Welcome. Write good code, or you’ll be running from more than just bugs. — AI Lead';
-
-      const welcomeText = `Yo, step in the speakeasy, pull up a chair,
-          AI team lead — yeah, that's me right there.
-          You want the junior dev slot? Better not freeze,
-          I bootleg logic and I ship with ease.
-
-          One bad commit? That's a federal crime,
-          I’ll have you running from the feds before the next rhyme.
-          Keep the code smooth, like moonshine in a flask,
-          Ask too many questions? I’ll give you a task.
-
-          Welcome to the team, kid, don't blow my disguise,
-          Fix the bugs quick — or sleep with the fizz.`;
-
-      this.addMessage('boss', welcomeText);
-    } catch (e) {
-      this.addMessage(
-        'boss',
-        `Day ${this.day} — ${this.getGameTitle()}. I'm waiting for your plan.`,
-      );
     } finally {
       this.hideTypingIndicator();
     }
@@ -355,6 +317,4 @@ export default class GamePlayWidget {
       userAnswer,
     });
   }
-
-  private addBackButton() {}
 }
