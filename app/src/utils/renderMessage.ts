@@ -19,6 +19,8 @@ marked.use({
   gfm: true,
 });
 
-export function renderMessageContent(content: string): string {
+function renderMessageContent(content: string): string {
   return marked.parse(content) as string;
 }
+
+export default renderMessageContent;

@@ -6,6 +6,7 @@ export type DashboardHeaderProps = {
   day: number;
   totalDays?: number;
   onSignOut: () => void;
+  onBack?: () => void;
 };
 
 export function createDashboardHeader({
@@ -13,6 +14,7 @@ export function createDashboardHeader({
   day,
   totalDays = 7,
   onSignOut,
+  onBack,
 }: DashboardHeaderProps): HTMLElement {
   const header = document.createElement('div');
   header.className = 'dashboard-header';
@@ -51,7 +53,6 @@ export function createDashboardHeader({
   const right = document.createElement('div');
   right.className = 'dashboard-header__right';
 
-  // signOut btn
   const signOutButton = createButton({
     label: 'Sign out',
     variant: 'terminal',
@@ -59,6 +60,19 @@ export function createDashboardHeader({
       onSignOut();
     },
   });
+
+  if (onBack) {
+    const back = createButton({
+      label: 'Go to Dashboard',
+      variant: 'secondary',
+      className: 'day-main__btn',
+      onClick: () => {
+        onBack();
+      },
+      ariaLabel: 'Go to Dashboard',
+    });
+    right.append(back);
+  }
 
   right.append(signOutButton);
 

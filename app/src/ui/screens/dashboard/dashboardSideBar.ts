@@ -25,7 +25,7 @@ type MenuItemConfig = {
 function createActionMenuItem({ icon, label, badge, onClick }: MenuItemConfig): HTMLButtonElement {
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'action-menu__item';
+  btn.className = 'action-menu__item action-menu__item--disabled';
 
   const iconEl = document.createElement('span');
   iconEl.className = 'action-menu__icon';
@@ -48,42 +48,63 @@ function createActionMenuItem({ icon, label, badge, onClick }: MenuItemConfig): 
   return btn;
 }
 
+function createStatusBar(
+  xp: number,
+  stress: number,
+  stressMax: number,
+  health: number,
+  authorityMax: number,
+): HTMLElement[] {
+  const xpContainer = document.createElement('div');
+  xpContainer.className = 'sidebar__xp';
+  const xpTitle = document.createElement('span');
+  xpTitle.className = 'sidebar__xp-title';
+  xpTitle.textContent = 'XP:';
+  xpContainer.prepend(xpTitle);
+  const xpValue = document.createElement('span');
+  xpValue.className = 'sidebar__xp-value';
+  xpValue.textContent = `${xp}`;
+  xpContainer.append(xpTitle, xpValue);
+
+  const stressBar = renderStatusBar('Stress', stress, stressMax, 'stress');
+  const authorityBar = renderStatusBar('Authority', health, authorityMax, 'authority');
+
+  return [xpContainer, stressBar, authorityBar];
+}
+
 export default function createSidebar(handlers: SidebarHandlers = {}): HTMLElement {
+  const { user, game } = store.getState();
+  const { day, xp, health, stress } = game;
+
   const root = document.createElement('div');
   root.className = 'sidebar';
 
   const header = document.createElement('div');
   header.className = 'sidebar__header';
 
-  const state = store.getState();
-  const { day, xp, health, stress } = state.game;
-
-  // ---- Profile (TEMP) ----
   const profile = document.createElement('div');
   profile.className = 'sidebar__profile';
 
-  const avatar = document.createElement('div');
+  const avatar = document.createElement('img');
   avatar.className = 'sidebar__avatar';
-  avatar.textContent = '👾';
+  avatar.src = user?.avatarId ? user.avatarId : 'avatar1.png';
+  avatar.alt = 'User Avatar';
 
   const username = document.createElement('div');
   username.className = 'sidebar__username';
-  username.textContent = 'Player';
+  username.textContent = user?.name || 'Player';
 
   profile.append(avatar, username);
 
-  // ---- Status Bars (TEMP) ----
-  const stressMax = 100;
-  const authorityMax = 10;
+  const STRESS_MAX = 100;
+  const AUTHORITY_MAX = 100;
+
+  const elements = createStatusBar(xp, stress, STRESS_MAX, health, AUTHORITY_MAX);
 
   const bars = document.createElement('div');
   bars.className = 'sidebar__bars';
-  bars.append(
-    renderStatusBar('Stress', stress, stressMax, 'stress'),
-    renderStatusBar('Authority', health, authorityMax, 'authority'),
-  );
+  bars.append(...elements);
 
-  // ---- Action Menu ----
   const menu = document.createElement('div');
   menu.className = 'action-menu';
 
@@ -91,7 +112,7 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
     createActionMenuItem({
       icon: '☕',
       label: 'Coffee Break',
-      badge: undefined, // later from store
+      badge: undefined,
       onClick: handlers.onCoffeeBreak,
     }),
     createActionMenuItem({
@@ -121,7 +142,7 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
     label: 'Restart Game',
     variant: 'terminal',
     onClick: () => {
-      eventBus.emit('RESTART_GAME', undefined);
+      eventBus.emit('RESTART_GAME', { changeView: true });
     },
   });
 
@@ -136,5 +157,18 @@ export default function createSidebar(handlers: SidebarHandlers = {}): HTMLEleme
 
   footer.append(restartButton);
   root.append(header, footer);
+
+  store.subscribe((state) => {
+    const { xp: currentXp, health: currentHealth, stress: currentStress } = state.game;
+    const statusElements = createStatusBar(
+      currentXp,
+      currentStress,
+      STRESS_MAX,
+      currentHealth,
+      AUTHORITY_MAX,
+    );
+    bars.replaceChildren(...statusElements);
+  });
+
   return root;
 }
