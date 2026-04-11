@@ -1,0 +1,80 @@
+.debug-challenge {
+  padding: 2rem;
+  color: #e0e0e0;
+  background: #1e1e2f;
+  border-radius: 12px;
+
+  &__desc {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__code {
+    background: #0d0d1a;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    color: #c3e88d;
+    margin-bottom: 1.5rem;
+  }
+
+  &__instruction {
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  &__dropzone {
+    min-height: 150px;
+    background: #2a2a40;
+    border: 2px dashed #5a5a7a;
+    border-radius: 8px;
+    padding: 1rem;
+    list-style-position: inside;
+    margin-bottom: 1.5rem;
+    transition: background 0.2s;
+
+    &.drag-over {
+      background: #3a3a5a;
+      border-color: #aaccff;
+    }
+  }
+
+  &__drop-item {
+    background: #3a4a6a;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 6px;
+    color: white;
+    list-style-type: decimal;
+    font-weight: 500;
+  }
+
+  &__drag-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  &__drag-item {
+    background: #4a5a7a;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition:
+      transform 0.1s,
+      opacity 0.2s;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+  }
+}
