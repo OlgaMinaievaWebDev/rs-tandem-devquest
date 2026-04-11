@@ -2,6 +2,7 @@ import { createButton } from '../../components/button';
 import '../../../styles/screens/day/dayMain.scss';
 import { eventBus } from '../../../core/EventBus';
 import avatar from '../../../assets/system/avatar-boss.png';
+
 export type DayGameId = 'bugfix' | 'quiz' | 'debug';
 
 export type DayMainProps = {

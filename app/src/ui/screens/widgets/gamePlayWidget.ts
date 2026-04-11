@@ -4,9 +4,10 @@ import avatarBoss from '../../../assets/system/avatar-boss.png';
 import paperPlaneIcon from '../../../assets/icons/paper-plane-icon.svg';
 import { store } from '../../../core/store';
 import { afterRender, scrollToBottom, shouldScrollToBottom } from '../../../utils/scrollUtils';
-import { renderMessageContent } from '../../../utils/renderMessage';
+import renderMessageContent from '../../../utils/renderMessage';
 import { eventBus } from '../../../core/EventBus';
 import { AIService, type BugfixTask } from '../../../services/aiService';
+import { showError } from '../../components/toast';
 
 export type GamePlayWidgetProps = {
   day: number;
@@ -15,18 +16,25 @@ export type GamePlayWidgetProps = {
 
 export default class GamePlayWidget {
   private container: HTMLElement;
+
   private gameId: string;
+
   private day: number;
 
   private messages: Array<{ type: 'boss' | 'user'; content: string }> = [];
+
   private isTyping = false;
 
   private chatMessages!: HTMLElement;
+
   private chatTextArea!: HTMLTextAreaElement;
+
   private chatSendBtn!: HTMLButtonElement;
+
   private typingIndicator!: HTMLElement;
 
   private bugfixTask: BugfixTask | null = null;
+
   private isWaitingForBugfixAnswer: boolean = false;
 
   constructor(container: HTMLElement, { day, gameId }: GamePlayWidgetProps) {
@@ -139,6 +147,8 @@ export default class GamePlayWidget {
       const typingDot = document.createElement('span');
       typingDot.className = 'typing-dot';
       typingDotsContainer.append(typingDot);
+
+      return typingDot;
     });
 
     const typingText = document.createElement('span');
@@ -218,12 +228,10 @@ export default class GamePlayWidget {
       afterRender(() => {
         scrollToBottom(this.chatMessages);
       });
-    } else {
-      if (wasNearBottom) {
-        afterRender(() => {
-          scrollToBottom(this.chatMessages);
-        });
-      }
+    } else if (wasNearBottom) {
+      afterRender(() => {
+        scrollToBottom(this.chatMessages);
+      });
     }
   };
 
@@ -284,6 +292,9 @@ export default class GamePlayWidget {
         this.hideTypingIndicator();
         this.addMessage('boss', "Sorry, I couldn't evaluate your answer. Please try again.");
         this.isWaitingForBugfixAnswer = true;
+        if (typeof error === 'string') {
+          showError(error);
+        }
       }
     }
   };
