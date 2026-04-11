@@ -1,4 +1,4 @@
-import '../../styles/components/statusBar.scss';
+import '../../styles/components/statusbar.scss';
 
 export type StatusBarVariant = 'stress' | 'authority';
 
