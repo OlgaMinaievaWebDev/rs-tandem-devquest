@@ -14,7 +14,9 @@ describe('Store Logic', () => {
       xp: 0,
       selectedSkills: ['JavaScript'],
       status: 'idle',
+      completedTasksToday: [],
     },
+    isReady: false,
   };
 
   // Test 1: Initialization
