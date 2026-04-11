@@ -310,17 +310,6 @@ export default class GamePlayWidget {
     });
   };
 
-  private getGameTitle(): string {
-    switch (this.gameId) {
-      case 'bugfix':
-        return 'Fix the Bug';
-      case 'debug':
-        return 'Debug Challenge';
-      default:
-        return 'Mission';
-    }
-  }
-
   public finishTask(outcome: 'correct' | 'wrong' | 'timeout', userAnswer: string = '') {
     eventBus.emit('TASK_FINISHED', {
       gameId: this.gameId,
