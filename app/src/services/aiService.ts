@@ -1,4 +1,5 @@
 import supabase from '../lib/supabase';
+import type { DebugChallenge } from '../ui/screens/widgets/debugChallengeWidget';
 
 export interface QuizQuestion {
   question: string;
@@ -101,10 +102,12 @@ export class AIService {
     return this.askAI(prompt);
   }
 
-  public static async getDebugChallenge(day: number, skill: string): Promise<DebugChallenge> {
-    const prompt = `Generate a JavaScript event loop challenge for day ${day}/7...`;
-    // return parsed JSON
-  }
+  // public static async getDebugChallenge(day: number, skill: string): Promise<DebugChallenge> {
+  //   const prompt = `Generate a JavaScript event loop challenge for day ${day}/7...`;
+  //   // return parsed JSON
+
+  //   // return
+  // }
 
   private static async askAI(prompt: string) {
     const { data, error } = await supabase.functions.invoke('generate-task', {

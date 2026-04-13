@@ -2,7 +2,7 @@ import { eventBus } from '../../../core/EventBus';
 import { createButton } from '../../components/button';
 import '../../../styles/widgets/debugChallengeWidget.scss';
 
-interface DebugChallenge {
+export interface DebugChallenge {
   description: string;
   codeSnippet: string;
   expectedOutputs: string[];
@@ -44,14 +44,21 @@ console.log('E');
 
 export default class DebugChallengeWidget {
   private container: HTMLElement;
+
   private gameId: string;
+
   private day: number;
 
   private challenge!: DebugChallenge;
+
+  private challengeElementsAmount!: number;
+
   private shuffledOutputs: string[] = [];
+
   private playerOrder: string[] = [];
 
   private dropZone: HTMLElement | undefined;
+
   private dropItems: HTMLElement[] | undefined;
 
   constructor(container: HTMLElement, gameId: string, day: number) {
@@ -65,10 +72,15 @@ export default class DebugChallengeWidget {
   public start(): void {
     const randomIndex = Math.floor(Math.random() * CHALLENGES.length);
     this.challenge = CHALLENGES[randomIndex];
+
+    this.challengeElementsAmount = this.challenge.expectedOutputs.length;
+
+    // console.log(this.challengeElementsAmount)
+
     this.shuffledOutputs = [...this.challenge.expectedOutputs].sort(() => Math.random() - 0.5);
     this.playerOrder = [];
 
-    eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 180 });
+    eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 1180 });
 
     this.render();
   }
@@ -92,10 +104,17 @@ export default class DebugChallengeWidget {
     instruction.textContent = 'Drag the console outputs into the correct order (top = first)';
     wrapper.appendChild(instruction);
 
-    this.dropZone = document.createElement('ol');
+    this.dropZone = document.createElement('div');
     this.dropZone.className = 'debug-challenge__dropzone';
     this.dropZone.id = 'debug-dropzone';
     wrapper.appendChild(this.dropZone);
+
+    Array.from({ length: this.challengeElementsAmount }).forEach((_, i) => {
+      const dropZoneItem = document.createElement('div');
+      dropZoneItem.textContent = String(i + 1);
+      dropZoneItem.className = 'debug-challenge__dropzone-cell';
+      this.dropZone?.append(dropZoneItem);
+    });
 
     const dragContainer = document.createElement('div');
     dragContainer.className = 'debug-challenge__drag-items';
@@ -154,39 +173,43 @@ export default class DebugChallengeWidget {
 
     this.dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
-
       if (typeof this.dropZone === 'undefined') return;
-
       this.dropZone.classList.add('drag-over');
     });
+
     this.dropZone.addEventListener('dragleave', () => {
       if (typeof this.dropZone === 'undefined') return;
-
       this.dropZone.classList.remove('drag-over');
     });
+
     this.dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       if (typeof this.dropZone === 'undefined') return;
 
       this.dropZone.classList.remove('drag-over');
-      const value = (e as DragEvent).dataTransfer?.getData('text/plain');
-      if (!value) return;
+
+      console.log(e);
+
+      // const value = (e as DragEvent).dataTransfer?.getData('text/plain');
+      // console.log(value);
+      // if (!value) return;
 
       // Add to player order and create a placeholder in drop zone
-      this.playerOrder.push(value);
-      const li = document.createElement('li');
-      li.textContent = value;
-      li.className = 'debug-challenge__drop-item';
-      this.dropZone.appendChild(li);
+      // this.playerOrder.push(value);
+      // const li = document.createElement('li');
+      // li.textContent = value;
+      // li.className = 'debug-challenge__drop-item';
+      // this.dropZone.appendChild(li);
 
-      // Remove the draggable item from the pool
-      // const source = Array.from(items).find((el) => (el as HTMLElement).dataset.value === value);
-      // if (source) source.remove();
+      // if (this.dropItems) {
+      //   const source = Array.from(this.dropItems).find((el) => el.dataset.value === value);
+      //   if (source) source.remove();
+      // }
 
       // If all items used, disable further drops (optional)
-      if (this.playerOrder.length === this.challenge.expectedOutputs.length) {
-        this.dropZone.removeEventListener('dragover', () => {});
-      }
+      // if (this.playerOrder.length === this.challenge.expectedOutputs.length) {
+      //   this.dropZone.removeEventListener('dragover', () => {});
+      // }
     });
   }
 
@@ -198,10 +221,12 @@ export default class DebugChallengeWidget {
     const outcome = isCorrect ? 'correct' : 'wrong';
     const answerString = this.playerOrder.join(' → ');
 
-    eventBus.emit('TASK_FINISHED', {
-      gameId: this.gameId,
-      outcome,
-      userAnswer: answerString,
-    });
+    console.log(outcome, answerString);
+
+    // eventBus.emit('TASK_FINISHED', {
+    //   gameId: this.gameId,
+    //   outcome,
+    //   userAnswer: answerString,
+    // });
   }
 }
