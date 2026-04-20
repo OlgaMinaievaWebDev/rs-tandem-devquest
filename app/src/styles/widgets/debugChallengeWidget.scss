@@ -1,0 +1,114 @@
+@use '../abstracts/_variables.scss' as *;
+
+.debug-challenge {
+  min-height: 775px;
+  padding: 2rem;
+  color: #e0e0e0;
+  background: $color-surface;
+  border-radius: $radius-md;
+
+  &__desc {
+    font-size: $text-md;
+    margin-top: 0;
+    margin-bottom: $space-2;
+    font-family: $font-family-accent;
+  }
+
+  &__code {
+    background: $color-surface-2;
+    padding: $space-4;
+    border-radius: $radius-sm;
+    font-family: $font-family-decorative;
+    color: $color-highlight;
+    margin-bottom: $space-5;
+  }
+
+  &__instruction {
+    font-family: $font-family-decorative;
+    margin-bottom: $space-4;
+  }
+
+  &__dropzone {
+    // min-height: 150px;
+    // border: 2px dashed $color-border;
+    // padding: $space-4;
+
+    counter-reset: item-counter;
+
+    background: $color-surface-2;
+    border-radius: $radius-sm;
+    margin-bottom: $space-5;
+    transition: background 0.2s;
+
+    // padding-left: 20px;
+
+    &-cell {
+      position: relative;
+
+      &::before {
+        counter-increment: item-counter;
+        content: counter(item-counter) ') ';
+        position: absolute;
+        left: 3px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      min-height: 54px;
+
+      font-family: $font-family-decorative;
+      background: $color-surface-2;
+      border: 2px dashed $color-border;
+      border-radius: $radius-sm;
+      padding: $space-1;
+      padding-left: $space-5;
+      margin-bottom: $space-2;
+      transition: background 0.2s border-color 0.3s;
+
+      &.drop-avaliable {
+        border-color: rgba($color-highlight, 0.5);
+      }
+
+      &.drag-over {
+        background: $color-surface;
+        border-color: $color-success;
+      }
+    }
+  }
+
+  &__drag-items {
+    min-height: 58px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-4;
+    margin-bottom: $space-6;
+    background: $color-surface-2;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+  }
+
+  &__drag-item {
+    font-family: $font-family-decorative;
+
+    background: $color-surface;
+    color: $color-text;
+    padding: $space-2 $space-3;
+    border-radius: $radius-sm;
+    user-select: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition:
+      transform 0.1s,
+      opacity 0.2s;
+
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &.dragging {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+  }
+}

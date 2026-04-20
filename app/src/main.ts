@@ -14,7 +14,7 @@ import { eventBus } from './core/EventBus';
 import './game/DayManager';
 import { sidebarTimer } from './ui/screens/dashboard/dashboardSideBar';
 import renderGameScreen from './ui/screens/game/gameScreen';
-import { showError } from './ui/components/toast';
+import { showError, showSuccess } from './ui/components/toast';
 import {
   loadGameStateFromDB,
   loadFromLocalBackup,
