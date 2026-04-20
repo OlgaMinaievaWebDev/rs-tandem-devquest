@@ -486,6 +486,3 @@ eventBus.on('RESTART_GAME', async () => {
     isResetting = false;
   }
 });
-
-showError('Error');
-showSuccess('Error');

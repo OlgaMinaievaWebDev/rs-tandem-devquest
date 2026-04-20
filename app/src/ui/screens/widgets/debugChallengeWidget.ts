@@ -2,6 +2,11 @@ import { eventBus } from '../../../core/EventBus';
 import { createButton } from '../../components/button';
 import '../../../styles/widgets/debugChallengeWidget.scss';
 
+import { AIService } from '../../../services/aiService.ts';
+import { showError } from '../../components/toast.ts';
+import getErrorMessage from '../../../utils/getErrorMessage.ts';
+import Loader from '../../components/loader.ts';
+
 export interface DebugChallenge {
   description: string;
   codeSnippet: string;
@@ -45,6 +50,8 @@ console.log('E');
 export default class DebugChallengeWidget {
   private container: HTMLElement;
 
+  private loader: Loader;
+
   private gameId: string;
 
   private day: number;
@@ -61,28 +68,44 @@ export default class DebugChallengeWidget {
 
   private dropItems: HTMLElement[] | undefined;
 
+  private dropZoneCells: HTMLElement[] | undefined;
+
   constructor(container: HTMLElement, gameId: string, day: number) {
     this.container = container;
     this.gameId = gameId;
     this.day = day;
 
     this.dropItems = [];
+    this.dropZoneCells = [];
+
+    this.loader = new Loader();
   }
 
-  public start(): void {
-    const randomIndex = Math.floor(Math.random() * CHALLENGES.length);
-    this.challenge = CHALLENGES[randomIndex];
+  public async start(): Promise<void> {
+    this.container.append(this.loader.getElement());
+    this.loader.show('AI Lead is creating a debug challenge...');
 
-    this.challengeElementsAmount = this.challenge.expectedOutputs.length;
+    try {
+      const randomIndex = Math.floor(Math.random() * CHALLENGES.length);
+      // this.challenge = CHALLENGES[randomIndex];
 
-    // console.log(this.challengeElementsAmount)
+      this.challenge = await AIService.getDebugChallenge(this.day);
 
-    this.shuffledOutputs = [...this.challenge.expectedOutputs].sort(() => Math.random() - 0.5);
-    this.playerOrder = [];
+      console.log(this.challenge);
 
-    eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 1180 });
+      this.challengeElementsAmount = this.challenge.expectedOutputs.length;
 
-    this.render();
+      this.shuffledOutputs = [...this.challenge.expectedOutputs].sort(() => Math.random() - 0.5);
+      this.playerOrder = [];
+
+      eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 1180 });
+
+      this.render();
+    } catch (e) {
+      showError(getErrorMessage(e, 'Failed to create a debug challenge'));
+    } finally {
+      this.loader.hide();
+    }
   }
 
   private render(): void {
@@ -109,10 +132,11 @@ export default class DebugChallengeWidget {
     this.dropZone.id = 'debug-dropzone';
     wrapper.appendChild(this.dropZone);
 
-    Array.from({ length: this.challengeElementsAmount }).forEach((_, i) => {
+    Array.from({ length: this.challengeElementsAmount }).forEach((_) => {
       const dropZoneItem = document.createElement('div');
-      dropZoneItem.textContent = String(i + 1);
       dropZoneItem.className = 'debug-challenge__dropzone-cell';
+      this.dropZoneCells?.push(dropZoneItem);
+
       this.dropZone?.append(dropZoneItem);
     });
 
@@ -124,9 +148,7 @@ export default class DebugChallengeWidget {
 
       dragContainer.appendChild(item);
 
-      if (typeof this.dropItems !== 'undefined') {
-        this.dropItems.push(item);
-      }
+      this.dropItems?.push(item);
     });
     wrapper.appendChild(dragContainer);
 
@@ -150,70 +172,93 @@ export default class DebugChallengeWidget {
   }
 
   private setupDragAndDrop(): void {
-    // const items = document.querySelectorAll('.debug-challenge__drag-item');
+    let draggedNode: HTMLElement | null = null;
+    let draggetNodeParent: HTMLElement | null = null;
 
-    console.log(this.dropItems);
-
-    if (typeof this.dropItems === 'undefined') return;
-
-    this.dropItems.forEach((item) => {
+    this.dropItems?.forEach((item) => {
       item.addEventListener('dragstart', (e) => {
-        const dt = (e as DragEvent).dataTransfer;
-        dt?.setData('text/plain', (item as HTMLElement).dataset.value || '');
+        draggedNode = item;
+        draggetNodeParent = item.parentElement;
+
+        if (e.dataTransfer !== null) {
+          e.dataTransfer.setData('text/plain', 'moving');
+          e.dataTransfer.effectAllowed = 'move';
+        }
+
+        this.dropZoneCells?.forEach((item) => {
+          item.classList.add('drop-avaliable');
+        });
+
         item.classList.add('dragging');
       });
+
       item.addEventListener('dragend', () => {
+        this.dropZoneCells?.forEach((item) => {
+          item.classList.remove('drop-avaliable');
+        });
+
         item.classList.remove('dragging');
       });
     });
 
-    console.log(this.dropZone);
+    this.dropZoneCells?.forEach((item) => {
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
 
-    if (typeof this.dropZone === 'undefined') return;
+        if (e.dataTransfer !== null) {
+          e.dataTransfer.dropEffect = 'move';
+        }
 
-    this.dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      if (typeof this.dropZone === 'undefined') return;
-      this.dropZone.classList.add('drag-over');
-    });
+        if (!item.classList.contains('drag-over')) {
+          item?.classList.add('drag-over');
+        }
+      });
 
-    this.dropZone.addEventListener('dragleave', () => {
-      if (typeof this.dropZone === 'undefined') return;
-      this.dropZone.classList.remove('drag-over');
-    });
+      item.addEventListener('dragleave', (e) => {
+        const related = e.relatedTarget as HTMLElement | null;
 
-    this.dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      if (typeof this.dropZone === 'undefined') return;
+        if (related && item.contains(related)) {
+          return;
+        }
 
-      this.dropZone.classList.remove('drag-over');
+        item?.classList.remove('drag-over');
+      });
 
-      console.log(e);
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
 
-      // const value = (e as DragEvent).dataTransfer?.getData('text/plain');
-      // console.log(value);
-      // if (!value) return;
+        const existingItem = item.children[0];
 
-      // Add to player order and create a placeholder in drop zone
-      // this.playerOrder.push(value);
-      // const li = document.createElement('li');
-      // li.textContent = value;
-      // li.className = 'debug-challenge__drop-item';
-      // this.dropZone.appendChild(li);
+        if (existingItem && existingItem !== draggetNodeParent) {
+          existingItem.remove();
 
-      // if (this.dropItems) {
-      //   const source = Array.from(this.dropItems).find((el) => el.dataset.value === value);
-      //   if (source) source.remove();
-      // }
+          draggetNodeParent?.append(existingItem);
+        }
 
-      // If all items used, disable further drops (optional)
-      // if (this.playerOrder.length === this.challenge.expectedOutputs.length) {
-      //   this.dropZone.removeEventListener('dragover', () => {});
-      // }
+        if (draggedNode) {
+          item.appendChild(draggedNode);
+          item?.classList.remove('drag-over');
+          draggedNode = null;
+        }
+      });
     });
   }
 
   private evaluate(): void {
+    this.dropZoneCells?.forEach((item) => {
+      const cellDragItem = item.querySelector('.debug-challenge__drag-item') as HTMLElement;
+
+      const itemValue = cellDragItem?.dataset.value;
+
+      console.log(item, 'item');
+
+      console.log(itemValue);
+
+      if (typeof itemValue === 'string') {
+        this.playerOrder.push(itemValue);
+      }
+    });
+
     const isCorrect =
       this.playerOrder.length === this.challenge.expectedOutputs.length &&
       this.playerOrder.every((val, idx) => val === this.challenge.expectedOutputs[idx]);
@@ -223,10 +268,11 @@ export default class DebugChallengeWidget {
 
     console.log(outcome, answerString);
 
-    // eventBus.emit('TASK_FINISHED', {
-    //   gameId: this.gameId,
-    //   outcome,
-    //   userAnswer: answerString,
-    // });
+    console.log(outcome, answerString);
+    eventBus.emit('TASK_FINISHED', {
+      gameId: this.gameId,
+      outcome,
+      userAnswer: answerString,
+    });
   }
 }

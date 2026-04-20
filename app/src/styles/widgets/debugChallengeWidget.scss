@@ -1,6 +1,7 @@
 @use '../abstracts/_variables.scss' as *;
 
 .debug-challenge {
+  min-height: 775px;
   padding: 2rem;
   color: #e0e0e0;
   background: $color-surface;
@@ -32,6 +33,8 @@
     // border: 2px dashed $color-border;
     // padding: $space-4;
 
+    counter-reset: item-counter;
+
     background: $color-surface-2;
     border-radius: $radius-sm;
     margin-bottom: $space-5;
@@ -40,33 +43,41 @@
     // padding-left: 20px;
 
     &-cell {
+      position: relative;
+
+      &::before {
+        counter-increment: item-counter;
+        content: counter(item-counter) ') ';
+        position: absolute;
+        left: 3px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      min-height: 54px;
+
       font-family: $font-family-decorative;
       background: $color-surface-2;
       border: 2px dashed $color-border;
       border-radius: $radius-sm;
       padding: $space-1;
+      padding-left: $space-5;
       margin-bottom: $space-2;
-      transition: background 0.2s;
-    }
+      transition: background 0.2s border-color 0.3s;
 
-    &.drag-over {
-      background: $color-surface;
-      border-color: $color-success;
+      &.drop-avaliable {
+        border-color: rgba($color-highlight, 0.5);
+      }
+
+      &.drag-over {
+        background: $color-surface;
+        border-color: $color-success;
+      }
     }
   }
 
-  // &__drop-item {
-  //   font-family: $font-family-decorative;
-  //   background: #3a4a6a;
-  //   padding: 0.5rem 1rem;
-  //   margin: 0.5rem 0;
-  //   border-radius: 6px;
-  //   color: white;
-  //   // list-style-type: decimal;
-  //   font-weight: 500;
-  // }
-
   &__drag-items {
+    min-height: 58px;
     display: flex;
     flex-wrap: wrap;
     gap: $space-4;
