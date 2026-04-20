@@ -15,35 +15,103 @@ export interface DebugChallenge {
 
 const CHALLENGES: DebugChallenge[] = [
   {
-    description: 'A mix of sync, microtask, and macrotask logs.',
+    description:
+      'Basic event loop order: synchronous code, Promise microtask, setTimeout macrotask.',
     codeSnippet: `
 console.log('Start');
-
 setTimeout(() => console.log('Timeout'), 0);
-
 Promise.resolve().then(() => console.log('Promise'));
-
 console.log('End');
     `.trim(),
     expectedOutputs: ['Start', 'End', 'Promise', 'Timeout'],
   },
   {
-    description: 'Nested promises and multiple timeouts.',
+    description:
+      'Two Promise microtasks execute before any macrotask, even if macrotask is queued first.',
     codeSnippet: `
 console.log('A');
-
 setTimeout(() => console.log('B'), 0);
-
-Promise.resolve()
-  .then(() => {
-    console.log('C');
-    return Promise.resolve();
-  })
-  .then(() => console.log('D'));
-
+Promise.resolve().then(() => console.log('C'));
+Promise.resolve().then(() => console.log('D'));
 console.log('E');
     `.trim(),
     expectedOutputs: ['A', 'E', 'C', 'D', 'B'],
+  },
+  {
+    description:
+      'A Promise created inside a setTimeout – the microtask runs before the next macrotask, but after current macrotask completes.',
+    codeSnippet: `
+console.log('1');
+setTimeout(() => {
+  console.log('2');
+  Promise.resolve().then(() => console.log('3'));
+}, 0);
+Promise.resolve().then(() => console.log('4'));
+console.log('5');
+    `.trim(),
+    expectedOutputs: ['1', '5', '4', '2', '3'],
+  },
+  {
+    description:
+      'setTimeout with delay 0 vs 100ms – order respects the timer delay (0ms runs first, then 100ms).',
+    codeSnippet: `
+console.log('Start');
+setTimeout(() => console.log('Fast'), 0);
+setTimeout(() => console.log('Slow'), 100);
+Promise.resolve().then(() => console.log('Micro'));
+console.log('End');
+    `.trim(),
+    expectedOutputs: ['Start', 'End', 'Micro', 'Fast', 'Slow'],
+  },
+  {
+    description:
+      'async/await behaves like Promise.then – await suspends the async function but the microtask is queued immediately.',
+    codeSnippet: `
+console.log('A');
+async function test() {
+  console.log('B');
+  await Promise.resolve();
+  console.log('C');
+}
+test();
+setTimeout(() => console.log('D'), 0);
+console.log('E');
+    `.trim(),
+    expectedOutputs: ['A', 'B', 'E', 'C', 'D'],
+  },
+  {
+    description:
+      'Complex nesting: a macrotask that spawns a microtask, and a microtask that spawns a macrotask. Order follows event loop phases.',
+    codeSnippet: `
+console.log('1');
+setTimeout(() => {
+  console.log('2');
+  Promise.resolve().then(() => console.log('3'));
+}, 0);
+Promise.resolve().then(() => {
+  console.log('4');
+  setTimeout(() => console.log('5'), 0);
+});
+console.log('6');
+    `.trim(),
+    expectedOutputs: ['1', '6', '4', '2', '3', '5'],
+  },
+  {
+    description:
+      'Event loop edge cases: queueMicrotask, rejected Promise with .catch, and a recursive microtask that defers a macrotask.',
+    codeSnippet: `
+console.log('Start');
+setTimeout(() => console.log('Timeout'), 0);
+queueMicrotask(() => console.log('Microtask'));
+Promise.reject('Reject').catch(() => console.log('Catch'));
+(async () => {
+  console.log('Async start');
+  await null;
+  console.log('Async end');
+})();
+console.log('End');
+    `.trim(),
+    expectedOutputs: ['Start', 'Async start', 'End', 'Microtask', 'Catch', 'Async end', 'Timeout'],
   },
 ];
 
@@ -86,26 +154,28 @@ export default class DebugChallengeWidget {
     this.loader.show('AI Lead is creating a debug challenge...');
 
     try {
-      const randomIndex = Math.floor(Math.random() * CHALLENGES.length);
-      // this.challenge = CHALLENGES[randomIndex];
+      const aiChallenge = await AIService.getDebugChallenge(this.day);
 
-      this.challenge = await AIService.getDebugChallenge(this.day);
-
-      console.log(this.challenge);
-
-      this.challengeElementsAmount = this.challenge.expectedOutputs.length;
-
-      this.shuffledOutputs = [...this.challenge.expectedOutputs].sort(() => Math.random() - 0.5);
-      this.playerOrder = [];
-
-      eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 1180 });
-
-      this.render();
+      if (this.isValidChallenge(aiChallenge)) {
+        this.challenge = aiChallenge;
+      } else {
+        showError('Invalid AI response, using fallback challenge');
+        this.challenge = this.getFallbackChallenge();
+      }
     } catch (e) {
-      showError(getErrorMessage(e, 'Failed to create a debug challenge'));
+      showError(getErrorMessage(e, 'Failed to create AI challenge, using default'));
+      this.challenge = this.getFallbackChallenge();
     } finally {
       this.loader.hide();
     }
+
+    this.challengeElementsAmount = this.challenge.expectedOutputs.length;
+    this.shuffledOutputs = [...this.challenge.expectedOutputs].sort(() => Math.random() - 0.5);
+    this.playerOrder = [];
+
+    eventBus.emit('TASK_STARTED', { gameId: this.gameId, duration: 1180 });
+
+    this.render();
   }
 
   private render(): void {
@@ -160,6 +230,21 @@ export default class DebugChallengeWidget {
 
     this.container.appendChild(wrapper);
     this.setupDragAndDrop();
+  }
+
+  private isValidChallenge(challenge: DebugChallenge) {
+    return (
+      challenge &&
+      typeof challenge.description === 'string' &&
+      typeof challenge.codeSnippet === 'string' &&
+      Array.isArray(challenge.expectedOutputs) &&
+      challenge.expectedOutputs.length > 0 &&
+      challenge.expectedOutputs.every((item) => typeof item === 'string')
+    );
+  }
+
+  private getFallbackChallenge(): DebugChallenge {
+    return CHALLENGES[this.day];
   }
 
   private createDraggableItem(text: string): HTMLElement {
@@ -266,9 +351,6 @@ export default class DebugChallengeWidget {
     const outcome = isCorrect ? 'correct' : 'wrong';
     const answerString = this.playerOrder.join(' → ');
 
-    console.log(outcome, answerString);
-
-    console.log(outcome, answerString);
     eventBus.emit('TASK_FINISHED', {
       gameId: this.gameId,
       outcome,
