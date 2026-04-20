@@ -1,6 +1,6 @@
 import Router from './router/router';
 import { store } from './core/store';
-import { type AppState, type GameState, type Route, initialState } from './core/state';
+import { type AppState, type GameState, type Route, initialState, STAT_DELTAS } from './core/state';
 
 import { renderStartScreen } from './ui/screens/startScreen';
 import { renderAuthScreen } from './ui/screens/authScreen';
@@ -161,6 +161,11 @@ async function bootstrap() {
 
     if (event === 'SIGNED_IN') {
       if (session?.user) {
+        const currentUser = store.getState().user;
+        if (currentUser && currentUser.id === session.user.id) {
+          return;
+        }
+
         store.setState({
           user: {
             id: session.user.id,
@@ -295,7 +300,10 @@ const renderApp = (state: AppState) => {
           day: state.route.day,
           gameId: state.route.gameId,
           skill: state.game.selectedSkills[0] || 'Frontend',
-          onBack: () => router.navigate({ name: 'day', day: store.getState().game.day }),
+          onBack: () => {
+            eventBus.emit('TASK_CANCELLED');
+            router.navigate({ name: 'day', day: store.getState().game.day });
+          },
           onSignOut: handlers.onSignOut,
         }),
       );
@@ -369,42 +377,51 @@ eventBus.on('GAME_STARTED', (payload) => {
   router.navigate({ name: 'game', day: payload.day, gameId: payload.gameId });
 });
 
-eventBus.on('TASK_FINISHED', (payload) => {
+eventBus.on('TASK_FINISHED', () => {
   sidebarTimer.stop();
-  const { game } = store.getState();
+  syncGameProgress();
+});
 
-  if (payload.outcome === 'correct' && game.completedTasksToday.length === 0) {
-    return;
-  }
+eventBus.on('SHOW_TASK_RESULT', (payload) => {
+  const { game } = store.getState();
+  const { xp, health, stress, day } = game;
 
   let dialogProps: ResultDialogProps | null = null;
+  const delta = STAT_DELTAS[payload.outcome];
 
   if (payload.outcome === 'correct') {
     dialogProps = {
       type: 'task-partial-success',
-      day: game.day,
+      day,
       message: 'Great job! Complete one more task to proceed to the next day.',
       stats: {
-        stress: { value: `${game.stress}%`, delta: '+5%' },
-        authority: { value: '4', delta: '+1' },
-        xp: { value: `${game.xp}`, delta: '+20' },
+        stress: { value: `${stress}`, delta: `-${delta.stress}` },
+        authority: { value: `${health}`, delta: `+${delta.authority}` },
+        xp: { value: `${xp}`, delta: `+${delta.xp}` },
       },
-      onAction: () => router.navigate({ name: 'day', day: game.day }),
+      onAction: () => router.navigate({ name: 'day', day }),
     };
-  } else {
-    const failMsg =
-      payload.outcome === 'timeout'
-        ? "Time's up! You need to be faster under pressure."
-        : `Not quite right. "${payload.userAnswer}" was incorrect. Review the concept and try again.`;
-
+  } else if (payload.outcome === 'wrong') {
+    dialogProps = {
+      type: 'task-failed',
+      day,
+      message: payload.userAnswer ? payload.userAnswer : `Not quite right.`,
+      stats: {
+        stress: { value: `${stress}`, delta: `+${delta.stress}` },
+        authority: { value: `${health}`, delta: `-${delta.authority}` },
+        xp: { value: `${xp}`, delta: `-${delta.xp}` },
+      },
+      onAction: () => router.navigate({ name: 'day', day }),
+    };
+  } else if (payload.outcome === 'timeout') {
     dialogProps = {
       type: 'task-failed',
       day: game.day,
-      message: failMsg,
+      message: "Time's up! You need to be faster under pressure.",
       stats: {
-        stress: { value: `${game.stress}%`, delta: '+15%' },
-        authority: { value: '2', delta: '-1' },
-        xp: { value: `${game.xp}`, delta: '-10' },
+        stress: { value: `${stress}`, delta: `+${delta.stress}` },
+        authority: { value: `${health}`, delta: `-${delta.authority}` },
+        xp: { value: `${xp}`, delta: `-${delta.xp}` },
       },
       onAction: () => router.navigate({ name: 'day', day: game.day }),
     };
@@ -414,9 +431,6 @@ eventBus.on('TASK_FINISHED', (payload) => {
     const dialog = new ResultDialogWidget(root, dialogProps);
     dialog.show();
   }
-
-  syncGameProgress();
-  router.navigate({ name: 'day', day: game.day });
 });
 
 eventBus.on('TASK_STARTED', (payload) => {
@@ -428,22 +442,20 @@ eventBus.on('TASK_CANCELLED', () => {
 });
 
 eventBus.on('DAY_COMPLETED', () => {
-  syncGameProgress();
+  const { day, stress, health, xp } = store.getState().game;
 
-  const { game } = store.getState();
-
-  const completedDay = game.day - 1;
+  const completedDay = day - 1;
 
   const dialog = new ResultDialogWidget(root, {
     type: 'day-complete',
     day: completedDay,
     stats: {
-      stress: { value: `${game.stress}%` },
-      authority: { value: '3', delta: '+1' },
-      xp: { value: `${game.xp}`, delta: '+50' },
+      stress: { value: `${stress}`, delta: `-${STAT_DELTAS.correct.stress}` },
+      authority: { value: `${health}`, delta: `+${STAT_DELTAS.correct.authority}` },
+      xp: { value: `${xp}`, delta: `+${STAT_DELTAS.correct.xp}` },
     },
     onAction: () => {
-      router.navigate({ name: 'day', day: game.day });
+      router.navigate({ name: 'day', day });
     },
   });
 
@@ -452,7 +464,7 @@ eventBus.on('DAY_COMPLETED', () => {
 
 let isResetting = false;
 
-eventBus.on('RESTART_GAME', async () => {
+eventBus.on('RESTART_GAME', async (payload) => {
   const state = store.getState();
   if (!state.user || isResetting) return;
 
@@ -474,10 +486,12 @@ eventBus.on('RESTART_GAME', async () => {
       game: newGameState,
     });
 
-    if (store.getState().route.name === 'dashboard') {
-      renderApp(store.getState());
-    } else {
-      router.navigate({ name: 'dashboard' });
+    if (payload.changeView) {
+      if (state.route.name === 'dashboard') {
+        renderApp(store.getState());
+      } else {
+        router.navigate({ name: 'dashboard' });
+      }
     }
   } catch (err) {
     showError(getErrorMessage(err, 'Failed to restart game'));
@@ -485,4 +499,47 @@ eventBus.on('RESTART_GAME', async () => {
     spinner.hide();
     isResetting = false;
   }
+});
+
+eventBus.on('GAME_OVER_DEFEAT', () => {
+  const { day, stress, health, xp } = store.getState().game;
+
+  eventBus.emit('RESTART_GAME', { changeView: false });
+
+  const dialog = new ResultDialogWidget(root, {
+    type: 'game-over-defeat',
+    message: "It looks like you're not ready yet. But this isn't the end — try again.",
+    day,
+    stats: {
+      stress: { value: `${stress}` },
+      authority: { value: `${health}` },
+      xp: { value: `${xp}` },
+    },
+    onAction: () => {
+      router.navigate({ name: 'dashboard' });
+    },
+  });
+
+  dialog.show();
+});
+
+eventBus.on('GAME_OVER_VICTORY', (payload) => {
+  eventBus.emit('RESTART_GAME', { changeView: false });
+  const { day, stress, health, xp } = store.getState().game;
+
+  const dialog = new ResultDialogWidget(root, {
+    type: 'game-over-victory',
+    message: payload.message,
+    day,
+    stats: {
+      stress: { value: `${stress}` },
+      authority: { value: `${health}` },
+      xp: { value: `${xp}` },
+    },
+    onAction: () => {
+      router.navigate({ name: 'dashboard' });
+    },
+  });
+
+  dialog.show();
 });

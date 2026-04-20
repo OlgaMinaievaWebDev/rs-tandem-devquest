@@ -10,6 +10,7 @@
   height: 100%;
   min-height: 0;
   background: $color-surface-2;
+  border-radius: $radius-lg;
 }
 
 .chat__messages {
@@ -98,7 +99,7 @@
 }
 
 .chat__textarea {
-  min-height: 200px;
+  min-height: 140px;
   max-height: 400px;
   flex: 1;
   font-size: $text-md;

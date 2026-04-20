@@ -1,6 +1,7 @@
 import { createButton } from '../../components/button';
 import '../../../styles/screens/day/dayMain.scss';
 import { eventBus } from '../../../core/EventBus';
+import avatar from '../../../assets/system/avatar-boss.png';
 
 export type DayGameId = 'bugfix' | 'quiz' | 'debug';
 
@@ -28,7 +29,7 @@ export function createDayMain({
   day: _day,
   completedTasks,
   briefing = 'Your team lead assigned you a task. Pick an approach and complete it.',
-  aiMessage = 'AI Lead: Welcome to today’s task. Do it by the book.',
+  aiMessage = 'Welcome to today’s task. Do it by the book.',
   onBackToDashboard,
 }: DayMainProps): HTMLElement {
   const root = document.createElement('section');
@@ -36,12 +37,19 @@ export function createDayMain({
 
   const dialogue = document.createElement('div');
   dialogue.className = 'day-main__dialogue';
-
+  const avatarLead = document.createElement('img');
+  avatarLead.className = 'day-main__avatar';
+  avatarLead.src = avatar;
+  const message = document.createElement('div');
+  message.className = 'day-main__message';
   const lead = document.createElement('div');
-  lead.className = 'day-main__line';
-  lead.textContent = aiMessage;
-
-  dialogue.append(lead);
+  lead.className = 'day-main__name';
+  lead.textContent = 'AI Lead';
+  const leadPhrase = document.createElement('div');
+  leadPhrase.className = 'day-main__phrase';
+  leadPhrase.textContent = aiMessage;
+  message.append(lead, leadPhrase);
+  dialogue.append(avatarLead, message);
 
   const card = document.createElement('div');
   card.className = 'day-main__card';

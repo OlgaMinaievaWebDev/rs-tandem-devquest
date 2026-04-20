@@ -24,7 +24,7 @@ export default function renderGameScreen({
   const layout = createDashboardLayout();
 
   layout.header.replaceChildren(
-    createDashboardHeader({ day, totalDays: 7, title: 'DevQuest', onSignOut }),
+    createDashboardHeader({ day, totalDays: 7, title: 'DevQuest', onSignOut, onBack }),
   );
 
   layout.sidebar.replaceChildren(
@@ -42,6 +42,7 @@ export default function renderGameScreen({
   if (gameId === 'quiz') {
     const quiz = new QuizWidget(widgetContainer, gameId, onBack);
     quiz.start(skill, day);
+  } else if (gameId === 'bugfix') {
   } else if (gameId === 'bugfix') {
     const gameWidget = new GamePlayWidget(widgetContainer, {
       day,

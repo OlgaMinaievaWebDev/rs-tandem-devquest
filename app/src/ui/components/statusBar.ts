@@ -21,12 +21,9 @@ export function renderStatusBar(
   const segmentsEl = document.createElement('div');
   segmentsEl.className = 'status-bar__segments';
 
-  // Choose how many segments to render.
-  // If max is small (<= 12) render max segments; otherwise render 10 segments.
   const segmentCount = clampedMax <= 12 ? clampedMax : 10;
   const filledCount = Math.round((clampedValue / clampedMax) * segmentCount);
 
-  // Stress color step based on ratio (green -> orange -> red)
   const ratio = clampedValue / clampedMax;
   let stressTone: 'low' | 'mid' | 'high' = 'low';
   if (ratio >= 0.67) stressTone = 'high';
@@ -39,8 +36,8 @@ export function renderStatusBar(
     const isFilled = i < filledCount;
     if (isFilled) seg.classList.add('is-filled');
 
-    if (variant === 'stress' && isFilled) {
-      seg.classList.add(`is-${stressTone}`); // is-low / is-mid / is-high
+    if (isFilled) {
+      seg.classList.add(`is-${stressTone}`);
     }
 
     segmentsEl.append(seg);

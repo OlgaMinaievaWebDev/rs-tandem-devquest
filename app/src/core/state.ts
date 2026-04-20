@@ -49,3 +49,21 @@ export const initialState: AppState = {
   game: defaultGameState,
   isReady: false,
 };
+
+export const STAT_DELTAS = {
+  correct: {
+    stress: 15,
+    authority: 10,
+    xp: 15,
+  },
+  wrong: {
+    stress: 15,
+    authority: 15,
+    xp: 5,
+  },
+  timeout: {
+    stress: 25,
+    authority: 20,
+    xp: 10,
+  },
+};
