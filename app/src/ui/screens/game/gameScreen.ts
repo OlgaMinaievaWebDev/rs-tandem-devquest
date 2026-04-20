@@ -3,7 +3,6 @@ import { createDashboardHeader } from '../dashboard/dashboardHeader';
 import createSidebar from '../dashboard/dashboardSideBar';
 import QuizWidget from '../widgets/quizWidget';
 import GamePlayWidget from '../widgets/gamePlayWidget';
-import { eventBus } from '../../../core/EventBus';
 import DebugChallengeWidget from '../widgets/debugChallengeWidget';
 
 export type GameScreenProps = {
