@@ -42,16 +42,14 @@ export default function renderGameScreen({
     const quiz = new QuizWidget(widgetContainer, gameId, onBack);
     quiz.start(skill, day);
   } else if (gameId === 'bugfix') {
-  } else if (gameId === 'bugfix') {
     const gameWidget = new GamePlayWidget(widgetContainer, {
       day,
-      gameId: gameId as 'bugfix',
+      gameId,
     });
     gameWidget.start();
   } else if (gameId === 'debug') {
     const debugWidget = new DebugChallengeWidget(widgetContainer, gameId, day);
     debugWidget.start();
-  } else {
   }
 
   layout.main.replaceChildren(widgetContainer);
